@@ -1,4 +1,4 @@
-*Runing crawling, entity linking and tagging*
+Runing crawling, entity linking and tagging
 =========
 
 ```sh
