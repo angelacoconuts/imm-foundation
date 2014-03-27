@@ -114,7 +114,7 @@ public class NLPUtils {
 		
 	}
 	
-	public Map<Integer, String> getEntityList(String rawText) {
+	public Map<Integer, String> getEntityList(String rawText, int numberOfChunk) {
 		
 		Map<Integer, String> entityList = new HashMap<Integer, String>();
 		
@@ -131,7 +131,7 @@ public class NLPUtils {
 		
 		for ( int i = 0; i < resources.size(); i++ ){
 			JSONObject resource  = resources.getJSONObject(i);
-			entityList.put(Integer.valueOf(resource.getString("@offset")), resource.getString("@URI") + "#" + resource.getString("@types") );
+			entityList.put(Integer.valueOf(resource.getString("@offset")) + CrawlCfg.URL_LEN_LIMIT*numberOfChunk , resource.getString("@URI") + "#" + resource.getString("@types") );
 		}		
 			
 		return entityList;
@@ -151,7 +151,7 @@ public class NLPUtils {
 		ClientResponse response = null;
 
 		try{
-		
+
 			response = resource
 					.accept(MediaType.APPLICATION_JSON)
 					.get(ClientResponse.class);

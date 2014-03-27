@@ -103,8 +103,11 @@ public class PageParser {
 	private void parseEntities(int[] sentencePositions, Map<Integer, List<String>> sentenceEntityMap){
 		
 		long timer = System.currentTimeMillis();
-		
-		Map<Integer, String> entityPositionMap = nlpTlk.getEntityList(text);
+		Map<Integer, String> entityPositionMap = new HashMap<Integer, String>();
+		String[] chunks = text.split("(?<=\\G.{"+CrawlCfg.URL_LEN_LIMIT+"})");
+				
+		for ( int i = 0 ; i < chunks.length ; i++ )
+			entityPositionMap.putAll( nlpTlk.getEntityList(chunks[i], i) );
 		
 		for ( int pos : entityPositionMap.keySet() ){
 
@@ -139,10 +142,10 @@ public class PageParser {
 		for (int key : sentencePositionMap.keySet() ){
 			logger.info("Sent: " + sentencePositionMap.get(key));
 			if(sentenceAdjAdvMap.containsKey(key))
-				logger.info("Adj: " + sentenceAdjAdvMap.get(key).toString());
+				logger.debug("Adj: " + sentenceAdjAdvMap.get(key).toString());
 			if(sentenceEntityMap.containsKey(key))
 				logger.info("Entity: " + sentenceEntityMap.get(key).toString());
-			logger.info("");
+			logger.debug("");
 		}
 		
 	}

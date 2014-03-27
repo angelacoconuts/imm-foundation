@@ -25,6 +25,7 @@ public class CrawlCfg {
 	// static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS", "RB", "RBR",
 	// "RBS" };
 	static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS" };
+	static int URL_LEN_LIMIT = 7000;
 
 	public static void parseCfgFromFile(String configJSONFileName) {
 
