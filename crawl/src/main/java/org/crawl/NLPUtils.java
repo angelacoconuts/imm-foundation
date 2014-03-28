@@ -16,6 +16,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.utils.RunConfig;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
@@ -100,17 +101,18 @@ public class NLPUtils {
 		
 	}
 	
-	public List<String> getAdjAdvList(String sentence) {
+	public void getAdjNounList(String sentence, List<String> adjAdvList, List<String> nounList){
 		
-		List<String> adjAdvList = new ArrayList<String>();
 		String[] tokens = tokenize(sentence);
 		String[] tags = tagPOS(tokens);
 		
-		for (int i = 0; i < tags.length ; i++)
-			if ( Arrays.binarySearch(CrawlCfg.ADJ_ADV_TAG_LIST, tags[i]) >= 0 )
+		for (int i = 0; i < tags.length ; i++){
+			if ( Arrays.binarySearch(RunConfig.ADJ_ADV_TAG_LIST, tags[i]) >= 0 )
 				adjAdvList.add(tokens[i]);
-		
-		return adjAdvList;
+			else if ( Arrays.binarySearch(RunConfig.NOUN_TAG_LIST, tags[i]) >= 0 )
+				nounList.add(tokens[i]);
+				
+		}
 		
 	}
 	
@@ -120,9 +122,9 @@ public class NLPUtils {
 		
 		//Call entity linking service;
 		JSONObject linkedResult = callEntityLinkingAnnotate(
-				CrawlCfg.ENTITY_LINKING_ENDPOINT, 
+				RunConfig.ENTITY_LINKING_ENDPOINT, 
 				rawText, 
-				CrawlCfg.CONFIDENCE_LEVEL);
+				RunConfig.CONFIDENCE_LEVEL);
 		
 		if( linkedResult == null )
 			return entityList;
@@ -131,7 +133,7 @@ public class NLPUtils {
 		
 		for ( int i = 0; i < resources.size(); i++ ){
 			JSONObject resource  = resources.getJSONObject(i);
-			entityList.put(Integer.valueOf(resource.getString("@offset")) + CrawlCfg.URL_LEN_LIMIT*numberOfChunk , resource.getString("@URI") + "#" + resource.getString("@types") );
+			entityList.put(Integer.valueOf(resource.getString("@offset")) + RunConfig.URL_LEN_LIMIT*numberOfChunk , resource.getString("@URI") /* + "#" + resource.getString("@types") */ );
 		}		
 			
 		return entityList;

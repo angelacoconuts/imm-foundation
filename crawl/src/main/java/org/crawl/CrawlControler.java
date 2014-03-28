@@ -1,6 +1,7 @@
 package org.crawl;
 
 import org.apache.log4j.Logger;
+import org.utils.RunConfig;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -13,10 +14,10 @@ public class CrawlControler {
 	private Logger logger = Logger.getLogger(CrawlControler.class.getName());
 
 	private CrawlConfig crawlConfig;
-	private int numberOfCrawlers = CrawlCfg.NUM_CRAWLERS;
-	private int maxPagesToFetch = CrawlCfg.NUM_PAGES_TO_FETCH;
-	private int maxDepthOfCrawling = CrawlCfg.CRAWL_DEPTH;
-	private String crawlDataStore = CrawlCfg.CRAWL_DATA_DIR;
+	private int numberOfCrawlers = RunConfig.NUM_CRAWLERS;
+	private int maxPagesToFetch = RunConfig.NUM_PAGES_TO_FETCH;
+	private int maxDepthOfCrawling = RunConfig.CRAWL_DEPTH;
+	private String crawlDataStore = RunConfig.CRAWL_DATA_DIR;
 	
 	public void crawl(String seedPage){
 		

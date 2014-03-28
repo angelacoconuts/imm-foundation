@@ -1,9 +1,0 @@
-{
-	"crawl_storage_dir" : "/home/angelacoconuts/Documents/dev/git/imm-foundation/crawl/data",
-	"crawler_number" : 1,
-	"max_pages_to_fetch" : 1,
-	"max_crawl_depth" : 2,
-	"seedPages" : "http://welovetravels.net/",
-	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
-	"entity_linking_confidence_level" : "0.6"	
-}

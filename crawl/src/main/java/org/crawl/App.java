@@ -1,5 +1,8 @@
 package org.crawl;
 
+import org.db.AmazonDynamoDB;
+import org.utils.RunConfig;
+
 public class App {
 	public static void main( String[] args )
     {
@@ -9,18 +12,19 @@ public class App {
 		if(args.length == 0)
 			System.out.println("Usage: java -jar crawler.jar config.json");
 			
-    	crawlPages(args[0]);
+		RunConfig.parseCfgFromFile(args[0]);
+		
+    	crawlPages();
 				
     }
 
-	public static void crawlPages(String configFileName) {
+	public static void crawlPages() {
 		
-		CrawlCfg.parseCfgFromFile(configFileName);
-
 		CrawlControler crawler = new CrawlControler();
 
-		for (String seedPage : CrawlCfg.seedPages)
+		for (String seedPage : RunConfig.seedPages)
 			crawler.crawl(seedPage);
 
 	}
+	
 }

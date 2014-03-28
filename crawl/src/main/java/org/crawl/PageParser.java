@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.model.WebPage;
+import org.utils.RunConfig;
 
 public class PageParser {
 
@@ -31,7 +32,8 @@ public class PageParser {
 		int sentencePosPointer = 0;
 		int[] sentencePositions;
 		Map<Integer, String> sentencePositionMap = new LinkedHashMap<Integer, String>();
-		Map<Integer, List<String>> sentenceAdjAdvMap = new HashMap<Integer, List<String>>();
+		Map<Integer, List<String>> sentenceAdjMap = new HashMap<Integer, List<String>>();
+		Map<Integer, List<String>> sentenceNounMap = new HashMap<Integer, List<String>>();
 		Map<Integer, List<String>> sentenceEntityMap = new HashMap<Integer, List<String>>();
 		
 		long timer = System.currentTimeMillis();
@@ -54,12 +56,13 @@ public class PageParser {
 		
 		sentencePositions = new int[sentences.length + 1];				
 			
-		parseAdjAdvs(sentences, sentencePosPointer, sentencePositions, sentenceAdjAdvMap, sentencePositionMap);
+		parseAdjAdvs(sentences, sentencePosPointer, sentencePositions, sentenceAdjMap, sentenceNounMap, sentencePositionMap);
 		
 		parseEntities(sentencePositions, sentenceEntityMap);
 		
 		page.setSentencePositionMap(sentencePositionMap);
-		page.setSentenceAdjAdvMap(sentenceAdjAdvMap);
+		page.setSentenceAdjMap(sentenceAdjMap);
+		page.setSentenceNounMap(sentenceNounMap);
 		page.setSentenceEntityMap(sentenceEntityMap);
 		
 		logger.info( "Parse page total time: " + ( System.currentTimeMillis() - timer ) + " ms");
@@ -70,7 +73,7 @@ public class PageParser {
 
 	}
 	
-	private void parseAdjAdvs(String[] sentences, int sentencePosPointer, int[] sentencePositions, Map<Integer, List<String>> sentenceAdjAdvMap, Map<Integer, String> sentencePositionMap){
+	private void parseAdjAdvs(String[] sentences, int sentencePosPointer, int[] sentencePositions, Map<Integer, List<String>> sentenceAdjMap, Map<Integer, List<String>> sentenceNounMap, Map<Integer, String> sentencePositionMap){
 		
 		long timer = System.currentTimeMillis();
 		
@@ -84,10 +87,16 @@ public class PageParser {
 
 			sentencePositionMap.put(sentencePosPointer, sentences[i]);
 			
-			List<String> adjAdvList = nlpTlk.getAdjAdvList(sentences[i]);	
+			List<String> adjList = new ArrayList<String>();
+			List<String> nounList = new ArrayList<String>();
 			
-			if (adjAdvList.size() > 0){
-				sentenceAdjAdvMap.put(sentencePosPointer, adjAdvList);
+			nlpTlk.getAdjNounList(sentences[i], adjList, nounList);	
+			
+			if (adjList.size() > 0){
+				sentenceAdjMap.put(sentencePosPointer, adjList);
+			}
+			if (nounList.size() > 0){
+				sentenceNounMap.put(sentencePosPointer, nounList);
 			}
 			
 			sentencePositions[i + 1] = sentencePosPointer;
@@ -104,7 +113,7 @@ public class PageParser {
 		
 		long timer = System.currentTimeMillis();
 		Map<Integer, String> entityPositionMap = new HashMap<Integer, String>();
-		String[] chunks = text.split("(?<=\\G.{"+CrawlCfg.URL_LEN_LIMIT+"})");
+		String[] chunks = text.split("(?<=\\G.{"+RunConfig.URL_LEN_LIMIT+"})");
 				
 		for ( int i = 0 ; i < chunks.length ; i++ )
 			entityPositionMap.putAll( nlpTlk.getEntityList(chunks[i], i) );
@@ -130,22 +139,25 @@ public class PageParser {
 	private void logParseResult(){
 		
 		logger.debug("URL: " + page.getURL());
-		logger.debug("TITLE: " + page.getTitle());
+		logger.info("TITLE: " + page.getTitle());
 		logger.debug("FETCHED: " + page.getFetchTime());
-		logger.debug("KEYWORDS: " + page.getKeywords());
+		logger.info("KEYWORDS: " + page.getKeywords());
 		logger.debug("");
 		
 		Map<Integer, String> sentencePositionMap = page.getSentencePositionMap();
-		Map<Integer, List<String>> sentenceAdjAdvMap = page.getSentenceAdjAdvMap();
+		Map<Integer, List<String>> sentenceAdjMap = page.getSentenceAdjMap();
+		Map<Integer, List<String>> sentenceNounMap = page.getSentenceNounMap();
 		Map<Integer, List<String>> sentenceEntityMap = page.getSentenceEntityMap();
 		
 		for (int key : sentencePositionMap.keySet() ){
-			logger.info("Sent: " + sentencePositionMap.get(key));
-			if(sentenceAdjAdvMap.containsKey(key))
-				logger.debug("Adj: " + sentenceAdjAdvMap.get(key).toString());
+			logger.debug("Sent: " + sentencePositionMap.get(key));
+			if(sentenceAdjMap.containsKey(key))
+				logger.info("Adj: " + sentenceAdjMap.get(key).toString());
+			if(sentenceNounMap.containsKey(key))
+				logger.info("Noun: " + sentenceNounMap.get(key).toString());
 			if(sentenceEntityMap.containsKey(key))
 				logger.info("Entity: " + sentenceEntityMap.get(key).toString());
-			logger.debug("");
+			logger.info("");
 		}
 		
 	}

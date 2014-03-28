@@ -10,7 +10,8 @@ public class WebPage {
 	private String keywords; 
 	private String fetchTime;	
 	private Map<Integer, String> sentencePositionMap;
-	private Map<Integer, List<String>> sentenceAdjAdvMap;
+	private Map<Integer, List<String>> sentenceAdjMap;
+	private Map<Integer, List<String>> sentenceNounMap;
 	private Map<Integer, List<String>> sentenceEntityMap;
 	
 	public String getURL() {
@@ -43,17 +44,23 @@ public class WebPage {
 	public void setSentencePositionMap(Map<Integer, String> sentencePositionMap) {
 		this.sentencePositionMap = sentencePositionMap;
 	}
-	public Map<Integer, List<String>> getSentenceAdjAdvMap() {
-		return sentenceAdjAdvMap;
-	}
-	public void setSentenceAdjAdvMap(Map<Integer, List<String>> sentenceAdjAdvMap) {
-		this.sentenceAdjAdvMap = sentenceAdjAdvMap;
-	}
 	public Map<Integer, List<String>> getSentenceEntityMap() {
 		return sentenceEntityMap;
 	}
 	public void setSentenceEntityMap(Map<Integer, List<String>> sentenceEntityMap) {
 		this.sentenceEntityMap = sentenceEntityMap;
+	}
+	public Map<Integer, List<String>> getSentenceAdjMap() {
+		return sentenceAdjMap;
+	}
+	public void setSentenceAdjMap(Map<Integer, List<String>> sentenceAdjMap) {
+		this.sentenceAdjMap = sentenceAdjMap;
+	}
+	public Map<Integer, List<String>> getSentenceNounMap() {
+		return sentenceNounMap;
+	}
+	public void setSentenceNounMap(Map<Integer, List<String>> sentenceNounMap) {
+		this.sentenceNounMap = sentenceNounMap;
 	}
 	
 }

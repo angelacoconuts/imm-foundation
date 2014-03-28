@@ -3,7 +3,8 @@
 	"crawler_number" : 1,
 	"max_pages_to_fetch" : 1,
 	"max_crawl_depth" : 2,
-	"seedPages" : "http://wikitravel.org/en/Hong_Kong_in_a_day",
+	"seedPages" : "http://www.economist.com/blogs/schumpeter/2014/03/facebook-buys-oculus-vr-0",
 	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
+	"aws_credential_dir" : "/home/angelacoconuts/.ssh/AwsCredentials.properties",
 	"entity_linking_confidence_level" : "0.6"	
 }
