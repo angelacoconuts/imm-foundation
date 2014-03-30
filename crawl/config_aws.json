@@ -5,7 +5,7 @@
 	"max_crawl_depth" : 2,
 	"seedPages" : "http://www.wearetraveller.com/,http://greentravelerguides.com/",
 	"aws_credential_dir" : "/home/ubuntu/AwsCredentials.properties",
-	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
+	"entity_linking_service_endpoint" : "http://ec2-54-202-117-245.us-west-2.compute.amazonaws.com:2222/rest",
 	"entity_linking_confidence_level" : "0.6"	
 	"machine_id" : 1,
 	"page_seq" : 17,
