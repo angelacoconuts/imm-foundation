@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -23,16 +24,23 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
 import com.amazonaws.services.dynamodbv2.model.BatchWriteItemRequest;
 import com.amazonaws.services.dynamodbv2.model.BatchWriteItemResult;
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
+import com.amazonaws.services.dynamodbv2.model.Condition;
 import com.amazonaws.services.dynamodbv2.model.ConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DescribeTableRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
+import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndex;
 import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
 import com.amazonaws.services.dynamodbv2.model.KeyType;
+import com.amazonaws.services.dynamodbv2.model.Projection;
+import com.amazonaws.services.dynamodbv2.model.ProjectionType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.PutRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryRequest;
+import com.amazonaws.services.dynamodbv2.model.QueryResult;
 import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 import com.amazonaws.services.dynamodbv2.model.TableDescription;
@@ -67,12 +75,89 @@ public class DynamoDB {
 	}
 
 	public void createTable(String tableName, String tableKey,
+			String secondGlobalIndex, Map<String, String> tableAttrs,
+			long readCapacity, long writeCapacity) {
+
+		try {
+
+			if (tableAttrs == null || tableAttrs.keySet().size() == 0)
+				return;
+
+			KeySchemaElement key = new KeySchemaElement().withAttributeName(
+					tableKey).withKeyType(KeyType.HASH);
+
+			List<AttributeDefinition> attributes = new ArrayList<AttributeDefinition>();
+
+			ProvisionedThroughput provisionedThroughput = new ProvisionedThroughput()
+					.withReadCapacityUnits(readCapacity)
+					.withWriteCapacityUnits(writeCapacity);
+
+			for (String attrName : tableAttrs.keySet()) {
+				AttributeDefinition attribute = new AttributeDefinition()
+						.withAttributeName(attrName).withAttributeType(
+								tableAttrs.get(attrName));
+				attributes.add(attribute);
+			}
+
+			KeySchemaElement index = new KeySchemaElement().withAttributeName(
+					secondGlobalIndex).withKeyType(KeyType.HASH);
+
+			GlobalSecondaryIndex sndIndex = new GlobalSecondaryIndex()
+					.withIndexName(secondGlobalIndex)
+					.withKeySchema(index)
+					.withProvisionedThroughput(
+							new ProvisionedThroughput()
+									.withReadCapacityUnits(
+											(long) RunConfig.IDX_READ_CAPACITY)
+									.withWriteCapacityUnits(
+											(long) RunConfig.IDX_WRITE_CAPACITY))
+					.withProjection(
+							new Projection()
+									.withProjectionType(ProjectionType.KEYS_ONLY));
+
+			// Create table if it does not exist yet
+			if (Tables.doesTableExist(dynamoDB, tableName)) {
+				logger.info("Table " + tableName + " is already ACTIVE");
+			} else {
+				// Create a table with a primary hash key named 'name', which
+				// holds a string
+				CreateTableRequest createTableRequest = new CreateTableRequest()
+						.withTableName(tableName).withKeySchema(key)
+						.withGlobalSecondaryIndexes(sndIndex)
+						.withAttributeDefinitions(attributes)
+						.withProvisionedThroughput(provisionedThroughput);
+
+				TableDescription createdTableDescription = dynamoDB
+						.createTable(createTableRequest).getTableDescription();
+				logger.info("Created Table: " + createdTableDescription);
+
+				// Wait for it to become active
+				logger.debug("Waiting for " + tableName
+						+ " to become ACTIVE...");
+				Tables.waitForTableToBecomeActive(dynamoDB, tableName);
+			}
+
+			// Describe our new table
+			DescribeTableRequest describeTableRequest = new DescribeTableRequest()
+					.withTableName(tableName);
+			TableDescription tableDescription = dynamoDB.describeTable(
+					describeTableRequest).getTable();
+			logger.debug("Table Description: " + tableDescription);
+
+		} catch (AmazonServiceException ase) {
+			logAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			logAmazonClientException(ace);
+		}
+	}
+
+	public void createTable(String tableName, String tableKey,
 			Map<String, String> tableAttrs, long readCapacity,
 			long writeCapacity) {
 
 		try {
-			
-			if ( tableAttrs == null || tableAttrs.keySet().size() == 0 )
+
+			if (tableAttrs == null || tableAttrs.keySet().size() == 0)
 				return;
 
 			KeySchemaElement key = new KeySchemaElement().withAttributeName(
@@ -107,7 +192,8 @@ public class DynamoDB {
 				logger.info("Created Table: " + createdTableDescription);
 
 				// Wait for it to become active
-				logger.info("Waiting for " + tableName + " to become ACTIVE...");
+				logger.debug("Waiting for " + tableName
+						+ " to become ACTIVE...");
 				Tables.waitForTableToBecomeActive(dynamoDB, tableName);
 			}
 
@@ -116,7 +202,7 @@ public class DynamoDB {
 					.withTableName(tableName);
 			TableDescription tableDescription = dynamoDB.describeTable(
 					describeTableRequest).getTable();
-			logger.info("Table Description: " + tableDescription);
+			logger.debug("Table Description: " + tableDescription);
 
 		} catch (AmazonServiceException ase) {
 			logAmazonServiceException(ase);
@@ -157,14 +243,16 @@ public class DynamoDB {
 
 		Map<String, AttributeValueUpdate> updateItems = new HashMap<String, AttributeValueUpdate>();
 
-		if ( strSetAttrUpdates == null || strSetAttrUpdates.keySet().size() == 0 )
+		if (strSetAttrUpdates == null || strSetAttrUpdates.keySet().size() == 0)
 			return;
-		
+
 		for (String attr : strSetAttrUpdates.keySet())
 			updateItems.put(
 					attr,
 					new AttributeValueUpdate().withAction(AttributeAction.ADD)
-							.withValue(new AttributeValue(strSetAttrUpdates.get(attr))));
+							.withValue(
+									new AttributeValue(strSetAttrUpdates
+											.get(attr))));
 
 		updateItem(tableName, keyName, keyValue, updateItems);
 
@@ -173,11 +261,11 @@ public class DynamoDB {
 	public void addNewAttributeToItem(String tableName, String keyName,
 			String keyValue, Map<String, String> attrUpdates) {
 
-		if ( attrUpdates == null || attrUpdates.keySet().size() == 0 )
+		if (attrUpdates == null || attrUpdates.keySet().size() == 0)
 			return;
-		
+
 		Map<String, AttributeValueUpdate> updateItems = new HashMap<String, AttributeValueUpdate>();
-		
+
 		for (String attr : attrUpdates.keySet())
 			updateItems.put(attr, new AttributeValueUpdate()
 					.withValue(new AttributeValue(attrUpdates.get(attr))));
@@ -194,8 +282,7 @@ public class DynamoDB {
 			key.put(keyName, new AttributeValue(keyValue));
 
 			UpdateItemRequest updateItemRequest = new UpdateItemRequest()
-					.withTableName(tableName)
-					.withKey(key)
+					.withTableName(tableName).withKey(key)
 					.withAttributeUpdates(updateItems);
 
 			dynamoDB.updateItem(updateItemRequest);
@@ -207,7 +294,8 @@ public class DynamoDB {
 		}
 	}
 
-	public boolean doesItemExist(String tableName, String keyName, String keyValue) {
+	public boolean doesItemExist(String tableName, String keyName,
+			String keyValue) {
 
 		try {
 
@@ -220,7 +308,7 @@ public class DynamoDB {
 					getItemRequest).getItem();
 
 			// Check the response.
-			if( result != null )
+			if (result != null)
 				return true;
 			else
 				return false;
@@ -230,7 +318,49 @@ public class DynamoDB {
 		} catch (AmazonClientException ace) {
 			logAmazonClientException(ace);
 		}
-		
+
+		return false;
+
+	}
+
+	public boolean getItemByIndex(String tableName, String indexName,
+			String indexValue) {
+
+		try {
+
+			QueryRequest queryRequest = new QueryRequest()
+					.withTableName(tableName)
+					.withIndexName(indexName)
+					.withScanIndexForward(true);
+
+			HashMap<String, Condition> keyConditions = new HashMap<String, Condition>();
+
+			keyConditions.put(indexName,
+					new Condition().withComparisonOperator(
+							ComparisonOperator.EQ)
+							.withAttributeValueList(
+							new AttributeValue(indexValue)));
+
+			queryRequest.setKeyConditions(keyConditions);
+
+			QueryResult result = dynamoDB.query(queryRequest);
+
+			List<Map<String, AttributeValue>> resultEntries = result.getItems();
+			for ( Map<String, AttributeValue> attribs : resultEntries ) {
+
+				for (Entry <String, AttributeValue> attrib : attribs.entrySet()) {
+					logger.info(attrib.getKey() + " ---> "
+							+ attrib.getValue());
+				}
+
+			}
+
+		} catch (AmazonServiceException ase) {
+			logAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			logAmazonClientException(ace);
+		}
+
 		return false;
 
 	}
@@ -245,24 +375,24 @@ public class DynamoDB {
 
 		try {
 
-			if( strAttrsList == null )
+			if (strAttrsList == null)
 				return;
-			
+
 			for (int i : strAttrsList.keySet()) {
-				
+
 				// Create a PutRequest for each item
 				Map<String, AttributeValue> item = new HashMap<String, AttributeValue>();
 
 				Map<String, String> strAttrs = strAttrsList.get(i);
-				if ( strAttrs != null )
+				if (strAttrs != null)
 					for (String strAtr : strAttrs.keySet())
-						item.put(strAtr, new AttributeValue(strAttrs.get(strAtr)));
-				
+						item.put(strAtr,
+								new AttributeValue(strAttrs.get(strAtr)));
+
 				Map<String, List<String>> strSetAttrs = strSetAttrsList.get(i);
-				if ( strSetAttrs != null )
+				if (strSetAttrs != null)
 					for (String strSetAtr : strSetAttrs.keySet())
-						item.put(
-								strSetAtr,
+						item.put(strSetAtr,
 								new AttributeValue(strSetAttrs.get(strSetAtr)));
 
 				itemsList.add(new WriteRequest()
@@ -277,7 +407,7 @@ public class DynamoDB {
 					.withReturnConsumedCapacity(ReturnConsumedCapacity.TOTAL);
 
 			do {
-				logger.info("Making the request.");
+				logger.debug("Making the request.");
 
 				batchWriteItemRequest.withRequestItems(requestItems);
 				result = dynamoDB.batchWriteItem(batchWriteItemRequest);
@@ -288,13 +418,13 @@ public class DynamoDB {
 					String table = consumedCapacity.getTableName();
 					Double consumedCapacityUnits = consumedCapacity
 							.getCapacityUnits();
-					logger.info("Consumed capacity units for table " + table
+					logger.debug("Consumed capacity units for table " + table
 							+ ": " + consumedCapacityUnits);
 				}
 
 				// Check for unprocessed keys which could happen if you exceed
 				// provisioned throughput
-				logger.info("Unprocessed Put and Delete requests: \n"
+				logger.debug("Unprocessed Put and Delete requests: \n"
 						+ result.getUnprocessedItems());
 				requestItems = result.getUnprocessedItems();
 

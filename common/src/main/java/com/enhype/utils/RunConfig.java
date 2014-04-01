@@ -24,10 +24,19 @@ public class RunConfig {
 	public static String[] seedPages = {};
 	public static String ENTITY_LINKING_ENDPOINT = "";
 	public static String CONFIDENCE_LEVEL = "";
-	public static long ENTITY_READ_CAPACITY = 10;
-	public static long ENTITY_WRITE_CAPACITY = 5;
-	public static long SENT_READ_CAPACITY = 10;
-	public static long SENT_WRITE_CAPACITY = 5;
+	
+	public static long ENTITY_READ_CAPACITY = 24;
+	public static long SENT_READ_CAPACITY = 23;
+	public static long BASE_READ_CAPACITY = 4;
+	public static long IDX_READ_CAPACITY = 5;
+	
+	public static long ENTITY_WRITE_CAPACITY = 51;
+	public static long SENT_WRITE_CAPACITY = 51;
+	public static long IDX_WRITE_CAPACITY = 9;
+	public static long BASE_WRITE_CAPACITY = 2;
+	
+	public static int IS_META_CRAWL = 0;
+	public static String CRAWL_DOMAIN_SEQ = "1";
 
 	// static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS", "RB", "RBR",
 	// "RBS" };
@@ -64,6 +73,8 @@ public class RunConfig {
 		RunConfig.ENTITY_WRITE_CAPACITY = json.getLong("entity_write_capacity");
 		RunConfig.SENT_READ_CAPACITY = json.getLong("sent_read_capacity");
 		RunConfig.SENT_WRITE_CAPACITY = json.getLong("sent_write_capacity");
+		RunConfig.IS_META_CRAWL = json.getInt("is_meta_crawl");
+		RunConfig.CRAWL_DOMAIN_SEQ = json.getString("crawl_domain_seq");
 		
 		RunConfig.ENTITY_LINKING_ENDPOINT = json.getString("entity_linking_service_endpoint");
 		RunConfig.CONFIDENCE_LEVEL = json.getString("entity_linking_confidence_level");

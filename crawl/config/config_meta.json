@@ -1,0 +1,17 @@
+{
+	"crawl_storage_dir" : "/home/angelacoconuts/Documents/dev/git/imm-foundation/crawl/data",
+	"crawler_number" : 1,
+	"max_pages_to_fetch" : 20,
+	"max_crawl_depth" : 2,
+	"seedPages" : "http://dir.yahoo.com/recreation/travel/",
+	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
+	"aws_credential_dir" : "/home/angelacoconuts/.ssh/AwsCredentials.properties",
+	"entity_linking_confidence_level" : "0.6",
+	"machine_id" : 1,
+	"page_seq" : 17,
+	"entity_read_capacity" : 10,
+	"entity_write_capacity" : 5,
+	"sent_read_capacity" : 10,
+	"sent_write_capacity" : 5,
+	"is_meta_crawl" : 1			
+}

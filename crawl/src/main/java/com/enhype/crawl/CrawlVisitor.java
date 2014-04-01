@@ -1,11 +1,11 @@
 package com.enhype.crawl;
 
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
 import com.enhype.model.WebPage;
+import com.enhype.utils.RunConfig;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
@@ -51,6 +51,8 @@ public class CrawlVisitor extends WebCrawler {
 	 */
 	@Override
 	public void visit(Page page) {
+		
+		long start = System.currentTimeMillis();
 	
 		String url = page.getWebURL().getURL();
 		logger.info("Fetched page: " + url);
@@ -61,22 +63,25 @@ public class CrawlVisitor extends WebCrawler {
 			String html = htmlParseData.getHtml();
 			
 			PageParser parser = new PageParser();
-			WebPage parsedPage = parser.parse(url, html);
-			long timer = System.currentTimeMillis();
+				
+				//Crawl page and parse entities and adjectives
+				WebPage parsedPage = parser.parse(url, html);
+				
+				long timer = System.currentTimeMillis();			
+				Crawler.dynamoDB.writePage(parsedPage);
+				long delta_timer = System.currentTimeMillis() - timer;
+				logger.info("Write page time: " + delta_timer + "ms"); 
+				
+				Crawler.dynamoDB.writeSentencesBatch(parsedPage);
+				logger.info("Write sentence time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
+				delta_timer = System.currentTimeMillis() - timer;
+				
+				Crawler.dynamoDB.writeEntities(parsedPage);
+				logger.info("Write entity time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
 			
-			Crawler.dynamoDB.writePage(parsedPage);
-			long delta_timer = System.currentTimeMillis() - timer;
-			logger.info("Write page time: " + delta_timer + "ms"); 
-			
-			Crawler.dynamoDB.writeSentences(parsedPage);
-			logger.info("Write sentence time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
-			delta_timer = System.currentTimeMillis() - timer;
-			
-			Crawler.dynamoDB.writeEntities(parsedPage);
-			logger.info("Write entity time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
-			
-		}		
-
+		}
+		
+		logger.info("=== Process page total time: " + (System.currentTimeMillis() - start) + "ms ==="); 
 		
 	}
 }

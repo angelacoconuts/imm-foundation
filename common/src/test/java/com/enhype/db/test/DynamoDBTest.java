@@ -82,5 +82,12 @@ public class DynamoDBTest {
 		dynamo.addNewValueToItem(tableName, "url", "http://dbpedia.org/page/Hong_Kong", strSetAttrUpdates);	
 		
 	}
+	
+	@Test
+	public void testQueryByGlobalIndex() {	
+		
+		dynamo.getItemByIndex("Entities", "bucket", "1");	
+		
+	}
 
 }

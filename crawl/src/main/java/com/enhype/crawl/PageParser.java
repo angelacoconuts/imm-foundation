@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import com.enhype.model.WebPage;
 import com.enhype.utils.RunConfig;
@@ -28,8 +29,28 @@ public class PageParser {
 	private NLPUtils nlpTlk = new NLPUtils(); 
 	private WebPage page = new WebPage();
 	private String text = "";
-	private static long pageSeq = RunConfig.PAGE_SEQ;
 
+	public void parseURL(File file){
+		
+		Document doc = null;	
+		try {
+			doc = Jsoup.parse(file, "UTF-8");
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		
+		for ( Element link : doc.select("a[href]") ){
+			String linkStr = link.attr("href");			
+			if (linkStr != null && linkStr.length() > 0 && linkStr.startsWith("http") 
+					&& !linkStr.contains("yahoo") && !linkStr.contains("google") 
+					&& !linkStr.contains("youtube") ){
+				Crawler.seedURLs.add(linkStr);
+			}
+		}
+
+	}
+	
+	
 	public WebPage parse(String url, String html){
 		
 		Document doc = null;		
@@ -63,17 +84,17 @@ public class PageParser {
 		Map<Integer, Set<String>> sentenceNounMap = new HashMap<Integer, Set<String>>();
 		Map<Integer, Set<String>> sentenceEntityMap = new HashMap<Integer, Set<String>>();
 		Map<String, Set<String>> entityMentionMap = new HashMap<String, Set<String>>();
-		String pageId = RunConfig.MACHINE_ID + "||" + Long.toString(pageSeq++);
+		String pageId = RunConfig.MACHINE_ID + "||" + Long.toString(Crawler.pageSeq++);
 		
 		long timer = System.currentTimeMillis();
 		
 		long jsoupTime = System.currentTimeMillis() - timer;
-		logger.info( "Jsoup parse time: " + ( jsoupTime ) + " ms");
+		logger.debug( "Jsoup parse time: " + ( jsoupTime ) + " ms");
 		
 		rawText = doc.select(CONTENT_TAGS).text();			
 		sentences = nlpTlk.splitSentences(rawText);
 		
-		logger.info( "Split sentence time: " + ( System.currentTimeMillis() - timer - jsoupTime ) + " ms");
+		logger.debug( "Split sentence time: " + ( System.currentTimeMillis() - timer - jsoupTime ) + " ms");
 		
 		page.setId(pageId);
 		page.setURL(url);
@@ -94,7 +115,7 @@ public class PageParser {
 		page.setSentenceEntityMap(sentenceEntityMap);
 		page.setEntityMentionMap(entityMentionMap);
 		
-		logger.info( "Parse page total time: " + ( System.currentTimeMillis() - timer ) + " ms");
+		logger.debug( "Parse page total time: " + ( System.currentTimeMillis() - timer ) + " ms");
 		
 		logParseResult();
 
@@ -134,7 +155,7 @@ public class PageParser {
 							
 		}
 		
-		logger.info( "Tag adj/adv time: " + ( System.currentTimeMillis() - timer ) + " ms");
+		logger.debug( "Tag adj/adv time: " + ( System.currentTimeMillis() - timer ) + " ms");
 		
 	}
 	
@@ -179,16 +200,16 @@ public class PageParser {
 				entityMentionMap.get(theme).addAll(sentenceIds);
 		}
 		
-		logger.info( "Tag entities time: " + ( System.currentTimeMillis() - timer ) + " ms");
+		logger.debug( "Tag entities time: " + ( System.currentTimeMillis() - timer ) + " ms");
 		
 	}
 	
 	private void logParseResult(){
 		
 		logger.debug("URL: " + page.getURL());
-		logger.info("TITLE: " + page.getTitle());
+		logger.debug("TITLE: " + page.getTitle());
 		logger.debug("FETCHED: " + page.getFetchTime());
-		logger.info("KEYWORDS: " + page.getKeywords());
+		logger.debug("KEYWORDS: " + page.getKeywords());
 		logger.debug("");
 		
 		Map<Integer, String> sentencePositionMap = page.getSentencePositionMap();

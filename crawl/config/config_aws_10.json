@@ -1,0 +1,18 @@
+{
+	"crawl_storage_dir" : "/home/ubuntu/imm-foundation/crawl/data",
+	"crawler_number" : 1,
+	"max_pages_to_fetch" : 1000,
+	"max_crawl_depth" : 5,
+	"seedPages" : "http://www.travelwithyourkids.com/,http://www.travlang.com/,http://www.trekamerica.com/,http://www.tripadvisor.com/,http://www.tripbase.com/,http://www.tripkick.com/,http://www.triplagoon.com/,http://www.tripomatic.com/,http://www.tripscore.com/,http://www.tripspot.com/,http://www.tripstance.com/,http://www.triptouch.com/,http://www.tripwiser.com/,http://www.tripwolf.com/,http://www.tropicalislandsexplorer.com/,http://www.tsa.gov/,http://www.tsatraveltips.us/,http://www.turnhere.com/,http://www.tuttinsieme.it/,http://www.umabroad.umn.edu/,http://www.uncle-dans-travel-secrets.com/,http://www.underbelly.com/,http://www.unique-southamerica-travel-experience.com/,http://www.usa-by-rail.com/,http://www.uzaze.com/,http://www.vacationidea.com/,http://www.vcarious.com/,http://www.vfp.org/,http://www.viamichelin.com/,http://www.villaholidays.travel/,http://www.vinivi.com/,http://www.virtualtourist.com/,http://www.visit-mekong.com/,http://www.visitborneo.com/,http://www.visiteurope.com/,http://www.visiting-africa.com/,http://www.visitlatam.com/,http://www.vissae.com/,http://www.volunteerabroad.com/,http://www.voyajo.com/,http://www.vtourist.com/,http://www.waymarking.com/,http://www.wcities.com/,http://www.wejustgotback.com/,http://www.wewentthere.com/,http://www.wickedgoodtraveltips.com/,http://www.wikitravel.org/,http://www.wildernessvolunteers.org/,http://www.wisdomsprings.co.uk/,http://www.wisenomad.com/,http://www.womenontheirway.com/,http://www.womentraveltips.com/,http://www.womenwelcomewomen.org.uk/,http://www.workingabroad.com/,http://www.workingholidayguru.com/,http://www.world-travel-net.com/,http://www.world-vacation.org/,http://www.world66.com/,http://www.worldbackpackers.net/,http://www.worldheadquarters.com/,http://www.worldreviewer.com/,http://www.worldsurface.com/,http://www.worldtravelguide.net/,http://www.worldworx.tv/,http://www.xpertholidays.com/,http://www.yelp.com/,http://www.your24.com/,http://www.youtrek.com/,http://www.zibus.com/,http://www2.btcv.org.uk/,https://asiatravelandleisure.com/,https://www.africantravelinc.com/,https://www.americaasia.com/,https://www.asiatravel.com/,https://www.blogger.com/,https://www.ricksteves.com/,https://www.statravel.co.uk/,https://www.virtuallythere.com/",
+	"aws_credential_dir" : "/home/ubuntu/.ssh/AwsCredentials.properties",
+	"entity_linking_service_endpoint" : "http://ec2-54-202-117-245.us-west-2.compute.amazonaws.com:2222/rest",
+	"entity_linking_confidence_level" : "0.6"	
+	"machine_id" : 10,
+	"page_seq" : 1,
+	"entity_read_capacity" : 24,
+	"entity_write_capacity" : 51,
+	"sent_read_capacity" : 23,
+	"sent_write_capacity" : 51,
+	"is_meta_crawl" : 0,
+	"crawl_domain_seq" : "1"			
+}

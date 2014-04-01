@@ -1,0 +1,18 @@
+{
+	"crawl_storage_dir" : "/home/ubuntu/imm-foundation/crawl/data",
+	"crawler_number" : 1,
+	"max_pages_to_fetch" : 1000,
+	"max_crawl_depth" : 5,
+	"seedPages" : "http://www.islandtrips.co.uk/,http://www.itchyfeet.org/,http://www.itisnet.com/,http://www.janeresture.com/,http://www.japanrail.com/,http://www.jaunted.com/,http://www.journeywoman.com/,http://www.justtheplanet.com/,http://www.kango.com/,http://www.kasbah.com/,http://www.kidscantravel.com/,http://www.kidsholidaysonline.com.au/,http://www.kinetictravel.net/,http://www.kropla.com/,http://www.kuonitravel.com.hk/,http://www.kwelangasa.com/,http://www.ladiesaway.com/,http://www.lanomaderie.com/,http://www.last-minute-vacation-guide.com/,http://www.lata.org/,http://www.lexicorient.com/,http://www.liquidtravel.org/,http://www.londonrailways.net/,http://www.lonelyplanet.com/,http://www.lonelyplanet.com/africa,http://www.lonelyplanet.com/europe,http://www.lonersonwheels.com/,http://www.lufthansa.com/,http://www.luxurylink.com/,http://www.madtravels.com/,http://www.magellans.com/,http://www.mapquest.com/,http://www.marimari.com/,http://www.marriott.com/city-guide/,http://www.middleeasttravelsguide.com/,http://www.milebymile.com/,http://www.mizpee.com/,http://www.momentousasia.com/,http://www.mycity.com/,http://www.mycreativetours.com/,http://www.mydestination.com/,http://www.mytravelguide.com/,http://www.natureparktravel.com/,http://www.nightanddayguides.com/,http://www.nileguide.com/,http://www.nozio.com/,http://www.oculartravel.com/,http://www.offbeattravel.com/,http://www.officialtravelguide.com/,http://www.ontheroadtravel.com/",
+	"aws_credential_dir" : "/home/ubuntu/.ssh/AwsCredentials.properties",
+	"entity_linking_service_endpoint" : "http://ec2-54-202-117-245.us-west-2.compute.amazonaws.com:2222/rest",
+	"entity_linking_confidence_level" : "0.6"	
+	"machine_id" : 6,
+	"page_seq" : 1,
+	"entity_read_capacity" : 24,
+	"entity_write_capacity" : 51,
+	"sent_read_capacity" : 23,
+	"sent_write_capacity" : 51,
+	"is_meta_crawl" : 0,
+	"crawl_domain_seq" : "1"			
+}
