@@ -14,5 +14,8 @@
 	"sent_read_capacity" : 23,
 	"sent_write_capacity" : 51,
 	"is_meta_crawl" : 0,
-	"crawl_domain_seq" : "1"
+	"crawl_domain_seq" : "1",
+	"postgres_connect_string" : "jdbc:postgresql://localhost/enhype",
+	"postgres_user" : "enhype",
+	"postgres_psw" : "enhypefun"
 }

@@ -37,12 +37,17 @@ public class RunConfig {
 	
 	public static int IS_META_CRAWL = 0;
 	public static String CRAWL_DOMAIN_SEQ = "1";
+	
+	public static String POSTGRES_CONNECT_STRING = "";
+	public static String POSTGRES_USER = "";
+	public static String POSTGRES_PSW = "";	
 
 	// static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS", "RB", "RBR",
 	// "RBS" };
 	public static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS" };
 	public static String[] NOUN_TAG_LIST = { "NN", "NNS" };
 	public static int URL_LEN_LIMIT = 7000;
+	public static String DELIMITOR = "||";
 
 	public static void parseCfgFromFile(String configJSONFileName) {
 
@@ -78,6 +83,10 @@ public class RunConfig {
 		
 		RunConfig.ENTITY_LINKING_ENDPOINT = json.getString("entity_linking_service_endpoint");
 		RunConfig.CONFIDENCE_LEVEL = json.getString("entity_linking_confidence_level");
+		
+		RunConfig.POSTGRES_CONNECT_STRING = json.getString("postgres_connect_string");
+		RunConfig.POSTGRES_USER = json.getString("postgres_user");
+		RunConfig.POSTGRES_PSW = json.getString("postgres_psw");
 
 	}
 

@@ -68,15 +68,15 @@ public class CrawlVisitor extends WebCrawler {
 				WebPage parsedPage = parser.parse(url, html);
 				
 				long timer = System.currentTimeMillis();			
-				Crawler.dynamoDB.writePage(parsedPage);
+				Crawler.dbWriter.writePage(parsedPage);
 				long delta_timer = System.currentTimeMillis() - timer;
 				logger.info("Write page time: " + delta_timer + "ms"); 
 				
-				Crawler.dynamoDB.writeSentencesBatch(parsedPage);
+				Crawler.dbWriter.writeSentences(parsedPage);
 				logger.info("Write sentence time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
 				delta_timer = System.currentTimeMillis() - timer;
 				
-				Crawler.dynamoDB.writeEntities(parsedPage);
+				Crawler.dbWriter.writeEntities(parsedPage);
 				logger.info("Write entity time: " + (System.currentTimeMillis() - timer - delta_timer) + "ms"); 
 			
 		}

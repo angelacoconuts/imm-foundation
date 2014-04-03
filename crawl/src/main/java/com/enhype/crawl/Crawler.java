@@ -14,18 +14,24 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import com.enhype.crawl.io.DynamoDBWriter;
+import com.enhype.crawl.io.PostgresDBWriter;
 import com.enhype.utils.RunConfig;
 
 public class Crawler {
 	
 	private static Logger logger = Logger.getLogger(Crawler.class.getName());
-	static DBWriter dynamoDB;
-	static Set<String> knownEntities = new HashSet<String>();
-	static Map<String, String> entitiesList = new HashMap<String, String>();
-	static Map<String, Set<String>> entitiesSurfaceList = new HashMap<String, Set<String>>();	
+//	static DynamoDBWriter dbWriter;
+	static PostgresDBWriter dbWriter;
+	private static Set<String> knownEntities = new HashSet<String>();
+	private static Map<String, String> entitiesList = new HashMap<String, String>();
+	private static Map<String, Set<String>> entitiesSurfaceList = new HashMap<String, Set<String>>();	
+	private static long pageSeq = RunConfig.PAGE_SEQ;
+	private static long lastPageSeq = pageSeq;
+	private static long sentSeq;
+	private static int siteSeq;
+	
 	static SortedSet<String> seedURLs = new TreeSet<String>();
-	static long pageSeq = RunConfig.PAGE_SEQ;
-	static long lastPageSeq = pageSeq;
 	
 	public static void main( String[] args )
     {
@@ -37,19 +43,34 @@ public class Crawler {
 			
 		RunConfig.parseCfgFromFile(args[0]);
 		
+		dbWriter = new PostgresDBWriter();
+		
+		if(args.length > 1 && args[0] == "createtable"){
+
+			dbWriter.createEntityTable();
+			dbWriter.createPageTable();
+			dbWriter.createSiteTable();
+			dbWriter.createSentenceTable();
+			
+		}else if (args.length > 1 && args[0] == "reloadtable") {
+			
+			dbWriter.dropAllTables();
+			dbWriter.createEntityTable();
+			dbWriter.createPageTable();
+			dbWriter.createSiteTable();
+			dbWriter.createSentenceTable();
+			
+		}
+		
 		if(RunConfig.IS_META_CRAWL == 0){
-			
-			dynamoDB = new DBWriter();		
-			dynamoDB.createEntityTable();
-			dynamoDB.createPageTable();
-			dynamoDB.createSiteTable();
-			dynamoDB.createSentenceTable();
-			
+
+			dbWriter = new PostgresDBWriter();
+
 			crawlPages();
 			
 		}
 		   	
-		if(RunConfig.IS_META_CRAWL == 1){
+		else if(RunConfig.IS_META_CRAWL == 1){
 			
 			PageParser parser = new PageParser();
 			
@@ -77,17 +98,56 @@ public class Crawler {
 				
     }
 
-	public static void crawlPages() {
+	private static void crawlPages() {
 		
 		CrawlControler crawler = new CrawlControler();
+		
+		siteSeq = 1 ; 
 
 		for (String seedPage : RunConfig.seedPages){
+			
+			sentSeq = 0;
+			
 			logger.info("Start crawling: " + seedPage);
 			crawler.crawl(seedPage);
-			dynamoDB.writeSite(seedPage, lastPageSeq, pageSeq);
+			
+			dbWriter.writeSite(seedPage, lastPageSeq, pageSeq, sentSeq);
 			lastPageSeq = pageSeq;
+			siteSeq++;
+			
 		}
 
 	}
+
+	public static Set<String> getKnownEntities() {
+		return knownEntities;
+	}
+
+	public static Map<String, String> getEntitiesList() {
+		return entitiesList;
+	}
+
+	public static Map<String, Set<String>> getEntitiesSurfaceList() {
+		return entitiesSurfaceList;
+	}
+
+	public static int getSiteSeq() {
+		return siteSeq;
+	}
 	
+	public static long getPageSeq() {
+		return pageSeq;
+	}
+	
+	public static long getSentSeq() {
+		return sentSeq;
+	}
+	
+	public static void setPageSeq(long pageSeq) {
+		Crawler.pageSeq = pageSeq;
+	}
+	
+	public static void setSentSeq(long sentSeq) {
+		Crawler.sentSeq = sentSeq;
+	}
 }

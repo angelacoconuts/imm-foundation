@@ -138,17 +138,17 @@ public class NLPUtils {
 			String uri = resource.getString("@URI");
 			entityList.put(Integer.valueOf(resource.getString("@offset")) + RunConfig.URL_LEN_LIMIT*numberOfChunk , uri);
 			
-			Crawler.entitiesList.put(uri, resource.getString("@types"));
+			Crawler.getEntitiesList().put(uri, resource.getString("@types"));
 			
 			String surface = resource.getString("@surfaceForm");
 			if( surface != null && surface.length() > 0 )
-			if (Crawler.entitiesSurfaceList.containsKey(uri)){
-				Crawler.entitiesSurfaceList.get(uri).add(surface);
+			if (Crawler.getEntitiesSurfaceList().containsKey(uri)){
+				Crawler.getEntitiesSurfaceList().get(uri).add(surface);
 			}
 			else{
 				Set<String> surfaces = new HashSet<String>();
 				surfaces.add(surface);
-				Crawler.entitiesSurfaceList.put(uri, surfaces);
+				Crawler.getEntitiesSurfaceList().put(uri, surfaces);
 			}
 			
 		}		

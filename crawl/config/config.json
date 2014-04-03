@@ -1,9 +1,9 @@
 {
 	"crawl_storage_dir" : "/home/angelacoconuts/Documents/dev/git/imm-foundation/crawl/data",
 	"crawler_number" : 1,
-	"max_pages_to_fetch" : 10,
+	"max_pages_to_fetch" : 1,
 	"max_crawl_depth" : 3,
-	"seedPages" : "http://www.wearetraveller.com/,http://wikitravel.org/en/",
+	"seedPages" : "http://www.wearetraveller.com/",
 	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
 	"aws_credential_dir" : "/home/angelacoconuts/.ssh/AwsCredentials.properties",
 	"entity_linking_confidence_level" : "0.6",
@@ -14,5 +14,8 @@
 	"sent_read_capacity" : 10,
 	"sent_write_capacity" : 5,
 	"is_meta_crawl" : 0,
-	"crawl_domain_seq" : "1"			
+	"crawl_domain_seq" : "1",
+	"postgres_connect_string" : "jdbc:postgresql://localhost/enhype",
+	"postgres_user" : "enhype",
+	"postgres_psw" : "enhype"			
 }

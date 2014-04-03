@@ -18,6 +18,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import com.enhype.crawl.io.SeqGenerator;
 import com.enhype.model.WebPage;
 import com.enhype.utils.RunConfig;
 
@@ -84,7 +85,6 @@ public class PageParser {
 		Map<Integer, Set<String>> sentenceNounMap = new HashMap<Integer, Set<String>>();
 		Map<Integer, Set<String>> sentenceEntityMap = new HashMap<Integer, Set<String>>();
 		Map<String, Set<String>> entityMentionMap = new HashMap<String, Set<String>>();
-		String pageId = RunConfig.MACHINE_ID + "||" + Long.toString(Crawler.pageSeq++);
 		
 		long timer = System.currentTimeMillis();
 		
@@ -96,7 +96,10 @@ public class PageParser {
 		
 		logger.debug( "Split sentence time: " + ( System.currentTimeMillis() - timer - jsoupTime ) + " ms");
 		
+		String pageId = SeqGenerator.generatePageId();
+				
 		page.setId(pageId);
+		
 		page.setURL(url);
 		page.setFetchTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 				.format(new Timestamp((new java.util.Date()).getTime())));
@@ -114,6 +117,7 @@ public class PageParser {
 		page.setSentenceNounMap(sentenceNounMap);
 		page.setSentenceEntityMap(sentenceEntityMap);
 		page.setEntityMentionMap(entityMentionMap);
+		Crawler.setSentSeq( Crawler.getSentSeq() + sentencePositionMap.keySet().size() );
 		
 		logger.debug( "Parse page total time: " + ( System.currentTimeMillis() - timer ) + " ms");
 		
@@ -166,8 +170,13 @@ public class PageParser {
 		String[] chunks = text.split("(?<=\\G.{"+RunConfig.URL_LEN_LIMIT+"})");
 		Set<String> sentenceIds = new HashSet<String>();
 				
-		for ( int i = 0 ; i < chunks.length ; i++ )
+		for ( int i = 0 ; i < chunks.length ; i++ ){
+			
+			if(chunks[i].length() <= 1)
+				continue;
+			
 			entityPositionMap.putAll( nlpTlk.getEntityList(chunks[i], i) );
+		}
 		
 		for ( int pos : entityPositionMap.keySet() ){
 
@@ -183,7 +192,7 @@ public class PageParser {
 				sentenceEntityMap.put(key, entityList);
 			}
 			
-			String sentenceId = page.getId() + "||" + key;
+			String sentenceId = SeqGenerator.getSentId(page.getId(), key);
 			sentenceIds.add(sentenceId);
 			
 			if(entityMentionMap.containsKey(entity))
