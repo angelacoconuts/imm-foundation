@@ -16,7 +16,8 @@ public class Extractor {
 		RunConfig.parseCfgFromFile("src/main/resources/config.json");
 		EntityExtractor extractor = new EntityExtractor();
 		
-		extractor.getRelatedEntities(queryEntityURI);			
+	//	extractor.getRelatedEntities(queryEntityURI);	
+		extractor.getRelatedEntitiesSite(queryEntityURI);
 		
 	}
 
