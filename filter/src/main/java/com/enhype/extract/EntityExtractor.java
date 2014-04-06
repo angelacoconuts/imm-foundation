@@ -3,6 +3,7 @@ package com.enhype.extract;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -27,8 +28,10 @@ public class EntityExtractor {
 	
 	public Map<String, Float> getRelatedEntitiesSite (String queryEntityURI) {
 				
-		Map<EntitySiteTuple, Long> occurence = getEntityOccurenceInSite(queryEntityURI, 5);		
+		Map<EntitySiteTuple, Long> occurence = getEntityOccurenceInSite(queryEntityURI, 1);		
 		getEntityProminenceInSite(occurence);
+		
+		logger.info("Total Entity #: " + entityScoreMap.keySet().size());
 		
 		for (String entity : entityScoreMap.keySet()){
 			String updateStr = "INSERT INTO HK_RELATED_SITE ( ENTITY_URI, SCORE, FORMULA ) "
@@ -210,9 +213,13 @@ public class EntityExtractor {
 		Map<EntitySiteTuple, Float> entityProminenceMap = new HashMap<EntitySiteTuple, Float>();
 		
 		long commonality = 0;
+		Set<EntitySiteTuple> entityPair = entityOccurence.keySet();
+		logger.info("Starting querying: " + entityPair.size() + "Tuples");
+		int i = 1;
 		
 		for ( EntitySiteTuple entitySite : entityOccurence.keySet() ){
-			
+
+			logger.info("Entity#: " + i++);
 			String entity = entitySite.getEntity();
 			String queryStr = "select count(*) from entity_mentions re"
 					+ " where re.uri = " + "'" + StringUtils.replace(entity, "'", "''") + "'"
@@ -221,7 +228,6 @@ public class EntityExtractor {
 			
 			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
-			
 
 			try {
 
@@ -230,11 +236,13 @@ public class EntityExtractor {
 					commonality = (Long) result.getObject("count");
 					
 					if( commonality > 0){
+						
+						String formula = entityOccurence.get(entitySite) + "/" + commonality + "; ";
+						logger.info("Fomula:" + formula);
 					
 						float score = (float) entityOccurence.get(entitySite) / commonality ; 
 						entityProminenceMap.put(entitySite, score );
-						
-						String formula = entityOccurence.get(entitySite) + "/" + commonality + "; ";
+						logger.info("Score:" + score);				
 						
 						if(entityFormulaMap.containsKey(entity)){
 							
