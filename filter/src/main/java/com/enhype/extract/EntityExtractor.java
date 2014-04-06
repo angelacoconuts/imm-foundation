@@ -217,11 +217,11 @@ public class EntityExtractor {
 			String queryStr = "select count(*) from entity_mentions re"
 					+ " where re.uri = " + "'" + StringUtils.replace(entity, "'", "''") + "'"
 					+ " and re.site_id = " + "'" + entitySite.getSiteId() + "'";
-			logger.debug(queryStr);
+			logger.info(queryStr);
 			
 			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
-			logger.debug( "Time: " + (System.currentTimeMillis() - timer) );
+			
 
 			try {
 
@@ -253,6 +253,8 @@ public class EntityExtractor {
 					}
 
 				}
+				
+				logger.info( "Time: " + (System.currentTimeMillis() - timer) );
 
 			} catch (SQLException ex) {	
 				logger.error("SQL Exception: ", ex); 
