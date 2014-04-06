@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.amazonaws.util.StringUtils;
 import com.enhype.db.PostgresDB;
 
 public class EntityExtractor {
@@ -219,8 +219,12 @@ public class EntityExtractor {
 		
 		for ( EntitySiteTuple entitySite : entityOccurence.keySet() ){
 
-			logger.info("Entity#: " + i++);
+			if(entitySite == null || entitySite.getEntity() == null || entitySite.getSiteId() == null 
+					|| entitySite.getEntity().length() == 0 || entitySite.getSiteId().length() == 0 )
+				continue;
+			
 			String entity = entitySite.getEntity();
+			logger.info("Entity#: " + (i++) + entity);			
 			String queryStr = "select count(*) from entity_mentions re"
 					+ " where re.uri = " + "'" + StringUtils.replace(entity, "'", "''") + "'"
 					+ " and re.site_id = " + "'" + entitySite.getSiteId() + "'";
