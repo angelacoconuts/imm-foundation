@@ -16,35 +16,45 @@ public class EntityExtractor {
 	private static Logger logger = Logger.getLogger(EntityExtractor.class.getName());
 	private PostgresDB db = new PostgresDB();
 	private Map<String, String> entityFormulaMap = new HashMap<String, String>();
-	private Map<String, Float> entityScoreMap = new TreeMap<String, Float>();
-	
-	public Map<String, Float> getRelatedEntities (String queryEntityURI) {
+	private Map<String, Integer> siteSentNumMap = new HashMap<String, Integer>();
 		
-		Map<String, Long> relatedEntityAndOccurence = getRelatedEntityAndOccurenceCount (queryEntityURI, 5);		
+	public Map<String, Double> getRelatedEntities (String queryEntityURI) {
 		
-		return downplayCommonEntities(relatedEntityAndOccurence);
+		Map<String, Long> relatedEntityAndOccurence = getEntityOccurence (queryEntityURI, 5);		
+		
+		return dividedByEntityOccurenceInCorpus(relatedEntityAndOccurence);
 		
 	}
 	
-	public Map<String, Float> getRelatedEntitiesSite (String queryEntityURI) {
+	public void getRelatedEntitiesSite (String queryEntityURI) {
+		
+		fillSiteSentNumMap();
+		
+		Map<String, Long> entityAbsoluteOccurence = getEntityOccurence (queryEntityURI, 5);
+		
+		Map<String, Double> entityRelavantFrequency = dividedByEntityOccurenceInCorpus(entityAbsoluteOccurence);
 				
-		Map<EntitySiteTuple, Long> occurence = getEntityOccurenceInSite(queryEntityURI, 1);		
-		getEntityProminenceInSite(occurence);
+		Map<EntitySiteTuple, Long> entitySiteOccurence = getEntityOccurenceGroupbySite(queryEntityURI, 1);	
 		
-		logger.info("Total Entity #: " + entityScoreMap.keySet().size());
+		Map<String, Double> entityProminenceScore = logScaleOffsetBySentNumInSite(entitySiteOccurence);
 		
-		for (String entity : entityScoreMap.keySet()){
-			String updateStr = "INSERT INTO HK_RELATED_SITE ( ENTITY_URI, SCORE, FORMULA ) "
+		logger.info("Total Entity #: " + entityRelavantFrequency.keySet().size());
+		
+		for (String entity : entityRelavantFrequency.keySet()){
+			
+			if(!entityProminenceScore.containsKey(entity))
+				continue;
+			
+			String updateStr = "INSERT INTO HK_RELATED_SITE ( ENTITY_URI, PROMINENCE_SCORE , SITE_PROMOTION_SCORE, FORMULA ) "
 					+ "VALUES ("
 					+ "'" + StringUtils.replace(entity, "'", "''") + "'" + ","
-					+ entityScoreMap.get(entity) + ","
+					+ entityRelavantFrequency.get(entity) + ","
+					+ entityProminenceScore.get(entity) + ","
 					+ "'" + entityFormulaMap.get(entity) + "'"
 					+ ") ;";
 			
 			db.execUpdate(updateStr);
 		}
-			
-		return entityScoreMap;
 		
 	}
 	
@@ -85,9 +95,39 @@ public class EntityExtractor {
 	}
 	*/
 	
-	private Map<String, Long> getRelatedEntityAndOccurenceCount (String queryEntityURI, int minOccurrenceThreshold) {
+	private void fillSiteSentNumMap() {
+		
+		String queryStr = "select s.site_id, s.sent_num from sites s;";	
+		
+		logger.info("== fillSiteSentNumMap ==");
+		
+		long timer = System.currentTimeMillis();
+		java.sql.ResultSet result = db.execSelect(queryStr);
+		logger.info( "Time: " + (System.currentTimeMillis() - timer) );
+
+		try {
+
+			while (result.next()) {
+				
+				int occurence = (Integer) result.getObject("sent_num");
+				String entity = (String) result.getObject("site_id");
+				siteSentNumMap.put(entity, occurence);
+
+			}
+
+		} catch (SQLException ex) {	
+			logger.error("SQL Exception: ", ex); 
+		} finally {
+			db.closeResultSet(result);
+		}
+		
+	}
+	
+	private Map<String, Long> getEntityOccurence (String queryEntityURI, int minOccurrenceThreshold) {
 		
 		Map<String, Long> relatedEntityAndOccurenceMap = new HashMap<String, Long>();
+		
+		logger.info("== getEntityOccurence ==");
 		
 		String queryStr = "select re.uri, count(*) from entity_mentions e, sentences s, entity_mentions re "
 				+ "where e.uri = " + "'" + queryEntityURI + "'"
@@ -97,8 +137,8 @@ public class EntityExtractor {
 		
 		long timer = System.currentTimeMillis();
 		java.sql.ResultSet result = db.execSelect(queryStr);
-		logger.info( "Time: " + (System.currentTimeMillis() - timer) );
-
+		logger.info( "Select entity local occurence time: " + (System.currentTimeMillis() - timer) );
+		
 		try {
 
 			while (result.next()) {
@@ -119,20 +159,22 @@ public class EntityExtractor {
 		
 	}
 
-	private Map<String, Float> downplayCommonEntities (Map<String, Long> entityAndOccurenceCount) {
+	private Map<String, Double> dividedByEntityOccurenceInCorpus (Map<String, Long> entityAbsoluteOccurence) {
 		
-		Map<String, Float> entitiesAndImportanceMap = new TreeMap<String, Float>();
+		Map<String, Double> entitiesAndImportanceMap = new HashMap<String, Double>();
 		
 		long commonality = 0;
 		
-		for ( String entityURI : entityAndOccurenceCount.keySet() ){
+		logger.info("== dividedByEntityOccurenceInCorpus ==");
+		
+		for ( String entityURI : entityAbsoluteOccurence.keySet() ){
 			
 			String queryStr = "select count(*) from entity_mentions re where re.uri = " + "'" + StringUtils.replace(entityURI, "'", "''") + "'";
 			logger.debug(queryStr);
 			
 			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
-			logger.debug( "Time: " + (System.currentTimeMillis() - timer) );
+			logger.info( "Select entity " + entityURI + " global occurence time: " + (System.currentTimeMillis() - timer) );
 
 			try {
 
@@ -142,17 +184,9 @@ public class EntityExtractor {
 					
 					if( commonality > 0){
 					
-						float score = (float) entityAndOccurenceCount.get(entityURI) / commonality ; 
+						double score = (double) entityAbsoluteOccurence.get(entityURI) / commonality ; 
 						entitiesAndImportanceMap.put(entityURI, score );
-						
-						String updateStr = "INSERT INTO HK_RELATED ( ENTITY_URI, SCORE, FORMULA ) "
-								+ "VALUES ("
-								+ entityURI + ","
-								+ entitiesAndImportanceMap.get(entityURI) + ","
-								+ "'" + entityAndOccurenceCount.get(entityURI)  + "/" +  commonality + "'"
-								+ ") ;";
-						
-						db.execUpdate(updateStr);
+						entityFormulaMap.put( entityURI, "(" + entityAbsoluteOccurence.get(entityURI)  + "/" +  commonality + ");; " );
 						
 					}
 
@@ -172,10 +206,11 @@ public class EntityExtractor {
 	
 	
 	
-	private Map<EntitySiteTuple, Long> getEntityOccurenceInSite (String queryEntityURI, int minOccurrenceThreshold) {
+	private Map<EntitySiteTuple, Long> getEntityOccurenceGroupbySite (String queryEntityURI, int minOccurrenceThreshold) {
 		
 		Map<EntitySiteTuple, Long> entityOccurenceMap = new HashMap<EntitySiteTuple, Long>();
 		
+		logger.info("== getEntityOccurenceGroupbySite ==");
 		String queryStr = "select re.uri, re.site_id, count(*) from entity_mentions e, sentences s, entity_mentions re "
 				+ "where e.uri = " + "'" + queryEntityURI + "'"
 				+ "and e.mention_sent = s.sent_id "
@@ -184,7 +219,7 @@ public class EntityExtractor {
 		
 		long timer = System.currentTimeMillis();
 		java.sql.ResultSet result = db.execSelect(queryStr);
-		logger.info( "Time: " + (System.currentTimeMillis() - timer) );
+		logger.info( "Select entity occurence group by site time: " + (System.currentTimeMillis() - timer) );
 
 		try {
 
@@ -208,27 +243,53 @@ public class EntityExtractor {
 		
 	}
 	
-	private void getEntityProminenceInSite (Map<EntitySiteTuple, Long> entityOccurence) {
+	private Map<String, Double> logScaleOffsetBySentNumInSite (Map<EntitySiteTuple, Long> entityOccurence) {
 		
-		Map<EntitySiteTuple, Float> entityProminenceMap = new HashMap<EntitySiteTuple, Float>();
-		
-		long commonality = 0;
+		Map<String, Double> entityScoreMap = new HashMap<String, Double>();		
 		Set<EntitySiteTuple> entityPair = entityOccurence.keySet();
-		logger.info("Starting querying: " + entityPair.size() + "Tuples");
-		int i = 1;
+		
+		logger.info("== logScaleOffsetBySentNumInSite ==");
+		logger.info("Starting processing: " + entityPair.size() + " entity site tuples");
 		
 		for ( EntitySiteTuple entitySite : entityOccurence.keySet() ){
-
-			if(entitySite == null || entitySite.getEntity() == null || entitySite.getSiteId() == null 
-					|| entitySite.getEntity().length() == 0 || entitySite.getSiteId().length() == 0 )
+			
+			String siteId = entitySite.getSiteId();
+			String entityURI = entitySite.getEntity();
+			
+			if(entityURI == null || siteId == null 
+					|| entityURI.length() == 0 || siteId.length() == 0 || !siteSentNumMap.containsKey(siteId) )
 				continue;
 			
+			int siteSentNum = siteSentNumMap.get(siteId);
+
+			String formula = "log(" + siteSentNum + "/" + entityOccurence.get(entitySite)  +  ") + ";
+			logger.debug("Fomula:" + formula);
+		
+			double score = Math.log10( (double) siteSentNum / entityOccurence.get(entitySite) ) ; 
+			logger.debug("Score:" + score);
+			
+			if(entityFormulaMap.containsKey(entityURI)){				
+				String previous = entityFormulaMap.get(entityURI);
+				entityFormulaMap.put(entityURI, previous + formula);				
+			}else{				
+				entityFormulaMap.put(entityURI, formula);				
+			}
+			
+			if(entityScoreMap.containsKey(entityURI)){				
+				double preScore = entityScoreMap.get(entityURI);
+				entityScoreMap.put(entityURI, preScore + score);				
+			}else{				
+				entityScoreMap.put(entityURI, score);				
+			}
+			
+			/*
 			String entity = entitySite.getEntity();
 			logger.info("Entity#: " + (i++) + entity);			
 			String queryStr = "select count(*) from entity_mentions re"
 					+ " where re.uri = " + "'" + StringUtils.replace(entity, "'", "''") + "'"
 					+ " and re.site_id = " + "'" + entitySite.getSiteId() + "'";
 			logger.info(queryStr);
+
 			
 			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
@@ -245,7 +306,6 @@ public class EntityExtractor {
 						logger.info("Fomula:" + formula);
 					
 						float score = (float) entityOccurence.get(entitySite) / commonality ; 
-						entityProminenceMap.put(entitySite, score );
 						logger.info("Score:" + score);				
 						
 						if(entityFormulaMap.containsKey(entity)){
@@ -274,7 +334,11 @@ public class EntityExtractor {
 				db.closeResultSet(result);
 			}
 			
+			*/
+			
 		}
+		
+		return entityScoreMap;
 		
 	}
 	
