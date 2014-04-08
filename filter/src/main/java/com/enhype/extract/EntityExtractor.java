@@ -17,24 +17,25 @@ public class EntityExtractor {
 	private PostgresDB db = new PostgresDB();
 	private Map<String, String> entityFormulaMap = new HashMap<String, String>();
 	private Map<String, Integer> siteSentNumMap = new HashMap<String, Integer>();
+	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
 		
-	public Map<String, Double> getRelatedEntities (String queryEntityURI) {
+	public Map<String, Double> getRelatedEntities (String entityRaw) {
 		
-		Map<String, Long> relatedEntityAndOccurence = getEntityOccurence (queryEntityURI, 5);		
+		Map<String, Long> relatedEntityAndOccurence = getEntityOccurence (dbpediaURIPrefix + entityRaw, 5);		
 		
 		return dividedByEntityOccurenceInCorpus(relatedEntityAndOccurence);
 		
 	}
 	
-	public void getRelatedEntitiesSite (String queryEntityURI) {
+	public void getRelatedEntitiesSite (String entityRaw) {
 		
 		fillSiteSentNumMap();
 		
-		Map<String, Long> entityAbsoluteOccurence = getEntityOccurence (queryEntityURI, 5);
+		Map<String, Long> entityAbsoluteOccurence = getEntityOccurence (dbpediaURIPrefix + entityRaw, 5);
 		
 		Map<String, Double> entityRelavantFrequency = dividedByEntityOccurenceInCorpus(entityAbsoluteOccurence);
 				
-		Map<EntitySiteTuple, Long> entitySiteOccurence = getEntityOccurenceGroupbySite(queryEntityURI, 1);	
+		Map<EntitySiteTuple, Long> entitySiteOccurence = getEntityOccurenceGroupbySite(dbpediaURIPrefix + entityRaw, 1);	
 		
 		Map<String, Double> entityProminenceScore = logScaleOffsetBySentNumInSite(entitySiteOccurence);
 		
@@ -45,8 +46,9 @@ public class EntityExtractor {
 			if(!entityProminenceScore.containsKey(entity))
 				continue;
 			
-			String updateStr = "INSERT INTO HK_RELATED_SITE ( ENTITY_URI, PROMINENCE_SCORE , SITE_PROMOTION_SCORE, FORMULA ) "
+			String updateStr = "INSERT INTO IMPORTANT_TOPICS ( TOPIC, ENTITY_URI, PROMINENCE_SCORE , SITE_PROMOTION_SCORE, FORMULA ) "
 					+ "VALUES ("
+					+ "'" + StringUtils.replace(entityRaw, "'", "''") + "'" + ","
 					+ "'" + StringUtils.replace(entity, "'", "''") + "'" + ","
 					+ entityRelavantFrequency.get(entity) + ","
 					+ entityProminenceScore.get(entity) + ","

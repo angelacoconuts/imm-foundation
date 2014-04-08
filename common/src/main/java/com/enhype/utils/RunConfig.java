@@ -41,6 +41,8 @@ public class RunConfig {
 	public static String POSTGRES_CONNECT_STRING = "";
 	public static String POSTGRES_USER = "";
 	public static String POSTGRES_PSW = "";	
+	
+	public static String[] entities = {};
 
 	// static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS", "RB", "RBR",
 	// "RBS" };
@@ -87,6 +89,8 @@ public class RunConfig {
 		RunConfig.POSTGRES_CONNECT_STRING = json.getString("postgres_connect_string");
 		RunConfig.POSTGRES_USER = json.getString("postgres_user");
 		RunConfig.POSTGRES_PSW = json.getString("postgres_psw");
+		
+		RunConfig.entities = StringUtil.split(json.getString("entities"),',');
 
 	}
 
