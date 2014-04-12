@@ -60,43 +60,6 @@ public class EntityExtractor {
 		
 	}
 	
-	/*
-	private Map<String, Long> getRelatedEntityAndOccurenceCountFile (FileReader occurrenceFile, int minOccurrenceThreshold) {
-		
-		Map<String, Long> relatedEntityAndOccurenceMap = new HashMap<String, Long>();
-		
-		BufferedReader br = new BufferedReader(occurrenceFile);
-	    try {
-	        String line = br.readLine();
-
-	        while (line != null) {
-	        	int com = StringUtils.lastIndexOf(line, ',');
-	        	if(com > 0){
-	        		String entity = StringUtils.substring(line, 0, com);
-	        		long count = Long.valueOf(StringUtils.substring(line, com + 1));
-	        		if (count >= minOccurrenceThreshold)
-	        			relatedEntityAndOccurenceMap.put(entity, count);
-	        	}
-	            line = br.readLine();
-	        }
-
-	    } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-	        try {
-				br.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    }
-		
-		return relatedEntityAndOccurenceMap;
-		
-	}
-	*/
-	
 	private void fillSiteSentNumMap() {
 		
 		String queryStr = "select s.site_id, s.sent_num from sites s;";	

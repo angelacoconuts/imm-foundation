@@ -15,6 +15,13 @@ public class Extractor {
 		
 		RunConfig.parseCfgFromFile("src/main/resources/config.json");
 		
+		SentenceRanker ranker = new SentenceRanker();
+		ranker.rankSentenceEntity("Hong_Kong");
+		
+	}
+	
+	public static void entractImportantEntities(){
+		
 		EntityExtractor extractor = new EntityExtractor();
 		
 		for (String entity : RunConfig.entities)

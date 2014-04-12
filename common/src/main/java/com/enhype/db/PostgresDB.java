@@ -105,6 +105,35 @@ public class PostgresDB {
 		}
 		return null;
 	}
+	
+	public ResultSet execSelect(String queryString, int fetchSize) {
+
+		Connection con = getConnection();
+		Statement st = null;
+		ResultSet result = null;
+
+		try {
+
+			st = con.createStatement();
+			con.setAutoCommit(false);
+			st.setFetchSize(fetchSize);
+			result = st.executeQuery(queryString);
+
+			if (result.isBeforeFirst()) {
+				logger.debug("Retrieve successfully from " + DBurl);
+				logger.debug("SQL Query: " + queryString);
+			}
+
+			return result;
+
+		} catch (SQLException ex) {
+			logger.error(queryString);
+			logger.error(ex.getMessage());
+			logger.error("SQL Exception: ", ex);
+
+		}
+		return null;
+	}
 
 	/**
 	 * Execute a SQL script No ResultSet return!
