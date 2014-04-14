@@ -35,7 +35,7 @@ public class EntityExtractor {
 		
 		Map<String, Double> entityRelavantFrequency = dividedByEntityOccurenceInCorpus(entityAbsoluteOccurence);
 				
-		Map<EntitySiteTuple, Long> entitySiteOccurence = getEntityOccurenceGroupbySite(dbpediaURIPrefix + entityRaw, 1);	
+		Map<FeatureSiteTuple, Long> entitySiteOccurence = getEntityOccurenceGroupbySite(dbpediaURIPrefix + entityRaw, 1);	
 		
 		Map<String, Double> entityProminenceScore = logScaleOffsetBySentNumInSite(entitySiteOccurence);
 		
@@ -171,9 +171,9 @@ public class EntityExtractor {
 	
 	
 	
-	private Map<EntitySiteTuple, Long> getEntityOccurenceGroupbySite (String queryEntityURI, int minOccurrenceThreshold) {
+	private Map<FeatureSiteTuple, Long> getEntityOccurenceGroupbySite (String queryEntityURI, int minOccurrenceThreshold) {
 		
-		Map<EntitySiteTuple, Long> entityOccurenceMap = new HashMap<EntitySiteTuple, Long>();
+		Map<FeatureSiteTuple, Long> entityOccurenceMap = new HashMap<FeatureSiteTuple, Long>();
 		
 		logger.info("== getEntityOccurenceGroupbySite ==");
 		String queryStr = "select re.uri, re.site_id, count(*) from entity_mentions e, sentences s, entity_mentions re "
@@ -192,7 +192,7 @@ public class EntityExtractor {
 				
 				long occurence = (Long) result.getObject("count");
 				if( occurence >= minOccurrenceThreshold){
-					EntitySiteTuple tuple = new EntitySiteTuple((String) result.getObject("uri"), (String) result.getObject("site_id") );
+					FeatureSiteTuple tuple = new FeatureSiteTuple((String) result.getObject("uri"), (String) result.getObject("site_id") );
 					entityOccurenceMap.put( tuple , occurence );
 				}
 
@@ -208,18 +208,18 @@ public class EntityExtractor {
 		
 	}
 	
-	private Map<String, Double> logScaleOffsetBySentNumInSite (Map<EntitySiteTuple, Long> entityOccurence) {
+	private Map<String, Double> logScaleOffsetBySentNumInSite (Map<FeatureSiteTuple, Long> entityOccurence) {
 		
 		Map<String, Double> entityScoreMap = new HashMap<String, Double>();		
-		Set<EntitySiteTuple> entityPair = entityOccurence.keySet();
+		Set<FeatureSiteTuple> entityPair = entityOccurence.keySet();
 		
 		logger.info("== logScaleOffsetBySentNumInSite ==");
 		logger.info("Starting processing: " + entityPair.size() + " entity site tuples");
 		
-		for ( EntitySiteTuple entitySite : entityOccurence.keySet() ){
+		for ( FeatureSiteTuple entitySite : entityOccurence.keySet() ){
 			
 			String siteId = entitySite.getSiteId();
-			String entityURI = entitySite.getEntity();
+			String entityURI = entitySite.getFeature();
 			
 			if(entityURI == null || siteId == null 
 					|| entityURI.length() == 0 || siteId.length() == 0 || !siteSentNumMap.containsKey(siteId) )
@@ -246,60 +246,6 @@ public class EntityExtractor {
 			}else{				
 				entityScoreMap.put(entityURI, score);				
 			}
-			
-			/*
-			String entity = entitySite.getEntity();
-			logger.info("Entity#: " + (i++) + entity);			
-			String queryStr = "select count(*) from entity_mentions re"
-					+ " where re.uri = " + "'" + StringUtils.replace(entity, "'", "''") + "'"
-					+ " and re.site_id = " + "'" + entitySite.getSiteId() + "'";
-			logger.info(queryStr);
-
-			
-			long timer = System.currentTimeMillis();
-			java.sql.ResultSet result = db.execSelect(queryStr);
-
-			try {
-
-				while (result.next()) {
-
-					commonality = (Long) result.getObject("count");
-					
-					if( commonality > 0){
-						
-						String formula = entityOccurence.get(entitySite) + "/" + commonality + "; ";
-						logger.info("Fomula:" + formula);
-					
-						float score = (float) entityOccurence.get(entitySite) / commonality ; 
-						logger.info("Score:" + score);				
-						
-						if(entityFormulaMap.containsKey(entity)){
-							
-							String previous = entityFormulaMap.get(entity);
-							entityFormulaMap.put(entity, previous + formula);
-							float preScore = entityScoreMap.get(entity);
-							entityScoreMap.put(entity, preScore + score);
-							
-						}else{
-							
-							entityFormulaMap.put(entity, formula);
-							entityScoreMap.put(entity, score);
-							
-						}
-						
-					}
-
-				}
-				
-				logger.info( "Time: " + (System.currentTimeMillis() - timer) );
-
-			} catch (SQLException ex) {	
-				logger.error("SQL Exception: ", ex); 
-			} finally {
-				db.closeResultSet(result);
-			}
-			
-			*/
 			
 		}
 		

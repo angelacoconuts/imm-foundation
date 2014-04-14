@@ -7,20 +7,20 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.enhype.extract.EntitySiteTuple;
+import com.enhype.extract.FeatureSiteTuple;
 
 public class testCustemTuple {
 	
 	@Test
 	public void testTuple(){
 		
-		EntitySiteTuple tuple1 = new EntitySiteTuple("Hong_Kong","S1");
-		EntitySiteTuple tuple2 = new EntitySiteTuple("Singapore","S2");
+		FeatureSiteTuple tuple1 = new FeatureSiteTuple("Hong_Kong","S1");
+		FeatureSiteTuple tuple2 = new FeatureSiteTuple("Singapore","S2");
 		
-		EntitySiteTuple tuple3 = new EntitySiteTuple("Hong_Kong","S1");
-		EntitySiteTuple tuple4 = new EntitySiteTuple("Singapore","S2");
+		FeatureSiteTuple tuple3 = new FeatureSiteTuple("Hong_Kong","S1");
+		FeatureSiteTuple tuple4 = new FeatureSiteTuple("Singapore","S2");
 		
-		Map<EntitySiteTuple, Integer> testMap = new HashMap<EntitySiteTuple, Integer>();
+		Map<FeatureSiteTuple, Integer> testMap = new HashMap<FeatureSiteTuple, Integer>();
 		testMap.put(tuple1, 5);
 		testMap.put(tuple2, 6);
 		

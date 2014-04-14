@@ -82,6 +82,8 @@ public class SentenceRanker {
 		
 		logger.info("== fillEntityScoreMap ==");
 		
+		entityScoreMap.clear();
+		
 		long timer = System.currentTimeMillis();
 		java.sql.ResultSet result = db.execSelect(queryStr);
 		logger.info( "Fill entity score map time: " + (System.currentTimeMillis() - timer) );

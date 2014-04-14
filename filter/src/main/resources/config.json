@@ -15,7 +15,7 @@
 	"sent_write_capacity" : 5,
 	"is_meta_crawl" : 0,
 	"crawl_domain_seq" : "1",
-	"postgres_connect_string" : "jdbc:postgresql://enhypeb.cojtnovxyoln.us-west-2.rds.amazonaws.com:5432/enhype",
+	"postgres_connect_string" : "jdbc:postgresql://enhype.cojtnovxyoln.us-west-2.rds.amazonaws.com:5432/enhype",
 	"postgres_user" : "enhype",
 	"entities" : "Hong_Kong,Kathmandu,Pokhara,New_York_City,Milan",
 	"postgres_psw" : "enhypefun";			
