@@ -128,13 +128,13 @@ public class FeatureWordExtractor {
 				continue;
 			
 			String queryStr = "select count(*) from sentence_features sf "
-					+ "where sf.key = " + "'" + featureWord + "'"
-					+ "and sf.site_id = " + "'" + siteId + "';";	
+					+ "where sf.value = " + "'" + featureWord + "'"
+					+ " and sf.site_id = " + "'" + siteId + "';";	
 
 			logger.info(queryStr);
 			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
-			logger.info( "Group by site time: " + (System.currentTimeMillis() - timer) );
+			logger.info( "Select site time: " + (System.currentTimeMillis() - timer) );
 
 			try {				
 				result.next();
