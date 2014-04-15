@@ -131,13 +131,12 @@ public class FeatureWordExtractor {
 					+ "where sf.key = " + "'" + featureWord + "'"
 					+ "and sf.site_id = " + "'" + siteId + "';";	
 
-			java.sql.ResultSet result = db.execSelect(queryStr);
 			logger.info(queryStr);
+			java.sql.ResultSet result = db.execSelect(queryStr);
 
-			try {
-				while (result.next()) {					
-					globalProminence = (Long) result.getObject("count");
-				}
+			try {				
+				result.next();
+				globalProminence = (Long) result.getObject("count");				
 			} catch (SQLException ex) {	
 				logger.error("SQL Exception: ", ex); 
 			} finally {
