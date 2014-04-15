@@ -132,7 +132,9 @@ public class FeatureWordExtractor {
 					+ "and sf.site_id = " + "'" + siteId + "';";	
 
 			logger.info(queryStr);
+			long timer = System.currentTimeMillis();
 			java.sql.ResultSet result = db.execSelect(queryStr);
+			logger.info( "Group by site time: " + (System.currentTimeMillis() - timer) );
 
 			try {				
 				result.next();
@@ -143,6 +145,7 @@ public class FeatureWordExtractor {
 				db.closeResultSet(result);
 			}
 			
+			logger.info("Count:" + globalProminence);
 			if(globalProminence == 0)
 				continue;
 			
