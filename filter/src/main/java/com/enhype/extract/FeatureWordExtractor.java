@@ -14,12 +14,17 @@ public class FeatureWordExtractor {
 	
 	private static Logger logger = Logger.getLogger(FeatureWordExtractor.class.getName());
 	private Map<String, Integer> siteSentNumMap = new HashMap<String, Integer>();
+	private Map<FeatureSiteTuple, Long> adjectiveOccurenceMap = new HashMap<FeatureSiteTuple, Long>();
 	private PostgresDB db = new PostgresDB();
 	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
+	private int maximumRequestSize = 100;
+	private int currentRequestSize = 0;
+	private String query = "";
 	
 	public void getImportantFeatureWords (String topic) {
 		
 		fillSiteSentNumMap();
+		fillAdjectiveOccurenceMap();
 				
 		Map<FeatureSiteTuple, Long> featureWordOccurence = getFeatureWordOccurenceGroupbySite(dbpediaURIPrefix + topic, 1);	
 		
@@ -38,7 +43,27 @@ public class FeatureWordExtractor {
 			
 			logger.info(updateStr);
 			
-			db.execUpdate(updateStr);
+			query = addToQueryListOrExecute (query , updateStr);
+		//	db.execUpdate(updateStr);
+		}
+		
+	}
+	
+	private String addToQueryListOrExecute (String existingQuery , String newRequest) {
+		
+		String newQuery = existingQuery + " " + newRequest;
+		
+		if (currentRequestSize < maximumRequestSize - 1){
+			
+			currentRequestSize++;
+			return newQuery;
+			
+		}else{
+			
+			db.execUpdate(newQuery);
+			currentRequestSize = 0;
+			return "";
+			
 		}
 		
 	}
@@ -62,6 +87,39 @@ public class FeatureWordExtractor {
 				siteSentNumMap.put(entity, occurence);
 
 			}
+
+		} catch (SQLException ex) {	
+			logger.error("SQL Exception: ", ex); 
+		} finally {
+			db.closeResultSet(result);
+		}
+		
+	}
+	
+	private void fillAdjectiveOccurenceMap() {
+		
+		String queryStr = "select adjective, site_id, count from adjective_occurence;";	
+		
+		logger.info("== fillAdjectiveOccurenceMap ==");
+		
+		long timer = System.currentTimeMillis();
+		java.sql.ResultSet result = db.execSelect(queryStr);
+		logger.info( "Time: " + (System.currentTimeMillis() - timer) );
+
+		try {
+
+			while (result.next()) {
+				
+				String adjective = (String) result.getObject("adjective");
+				String siteId = (String) result.getObject("site_id");
+				long occurence = (Long) result.getObject("count");
+				
+				FeatureSiteTuple tuple = new FeatureSiteTuple( adjective, siteId );
+				adjectiveOccurenceMap.put( tuple , occurence );
+					
+			}
+			
+			logger.info("Total tuple #: " + adjectiveOccurenceMap.size() ); 
 
 		} catch (SQLException ex) {	
 			logger.error("SQL Exception: ", ex); 
@@ -112,7 +170,7 @@ public class FeatureWordExtractor {
 		
 		Map<String, Double> featureWordScoreMap = new HashMap<String, Double>();		
 		Set<FeatureSiteTuple> featureWordPair = featureWordOccurence.keySet();
-		long globalProminence;
+		// long globalProminence;
 		
 		logger.info("== logScaleOffsetBySentNumInSite ==");
 		logger.info("Starting processing: " + featureWordPair.size() + " feature word - site tuples");
@@ -121,6 +179,8 @@ public class FeatureWordExtractor {
 			
 			String siteId = featureWordSite.getSiteId();
 			String featureWord = featureWordSite.getFeature();
+			
+			/*
 			globalProminence = 0;
 			
 			if(featureWord == null || siteId == null 
@@ -128,7 +188,7 @@ public class FeatureWordExtractor {
 				continue;
 			
 			String queryStr = "select count(*) from sentence_features sf "
-					+ "where sf.value = " + "'" + featureWord + "'"
+					+ "where sf.value = " + "'" + StringUtils.replace(featureWord,"'","''") + "'"
 					+ " and sf.site_id = " + "'" + siteId + "';";	
 
 			logger.info(queryStr);
@@ -142,17 +202,21 @@ public class FeatureWordExtractor {
 			} catch (SQLException ex) {	
 				logger.error("SQL Exception: ", ex); 
 			} finally {
-				db.closeResultSet(result);
+				if(result != null)
+					db.closeResultSet(result);
 			}
 			
 			logger.info("Count:" + globalProminence);
 			if(globalProminence == 0)
 				continue;
-			
+			*/	
+
 			int siteSentNum = siteSentNumMap.get(siteId);
+			long globalProminence = adjectiveOccurenceMap.get(featureWordSite);
 		
-			double score = Math.log10( (double) siteSentNum / globalProminence ) * featureWordOccurence.get(featureWordSite) ; 
-			logger.info("Score:" + score);
+		//	double score = Math.log10( (double) siteSentNum / globalProminence ) * featureWordOccurence.get(featureWordSite) ; 
+			double score = Math.log10( (double) siteSentNum / globalProminence ) * featureWordOccurence.get(featureWordSite);
+		//	logger.info("Score:" + score);
 			
 			if(featureWordScoreMap.containsKey(featureWord)){				
 				double preScore = featureWordScoreMap.get(featureWord);

@@ -29,7 +29,7 @@ public class FeatureSiteTuple {
 	public boolean equals(Object obj) {
         if (obj != null && obj instanceof FeatureSiteTuple) {
         	FeatureSiteTuple p = (FeatureSiteTuple)obj;
-            return ((feature==p.feature) && (siteId==p.siteId));
+            return ( feature.equals(p.feature) && siteId.equals(p.siteId) );
         }
         return false;
     }
