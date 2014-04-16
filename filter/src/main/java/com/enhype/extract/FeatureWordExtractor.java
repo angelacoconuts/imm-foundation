@@ -216,6 +216,11 @@ public class FeatureWordExtractor {
 				continue;
 			}
 			
+			if( !siteSentNumMap.containsKey(siteId) ){
+				logger.info("Site: " + siteId + " can not be found ");
+				continue;
+			}
+			
 			int siteSentNum = siteSentNumMap.get(siteId);
 			long globalProminence = adjectiveOccurenceMap.get(featureWordSite);
 		
