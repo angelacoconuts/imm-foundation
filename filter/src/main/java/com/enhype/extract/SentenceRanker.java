@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.enhype.db.PostgresDB;
+import com.enhype.utils.DBBulkInserter;
 
 public class SentenceRanker {
 	

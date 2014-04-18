@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Selector</title>
+    <link rel="stylesheet" href="javascripts/vendor/bootstrap/dist/css/bootstrap.css">
+    <script src="javascripts/vendor/angular/angular.js"></script>
+    <script src="javascripts/controller.js"></script>
+    <style>
+      body {
+        margin-top: 20px;
+        margin-left: 40px;
+      }
+      #topics {
+        width: 300px;
+      }
+    </style>  
+  </head>
+  
+  <body ng-app="imageSelApp" ng-controller="imgController" ng-init="getTopics()">
+    <div id="topics" class="list-group">
+      <div ng-repeat="topic in topics">
+	<a class="list-group-item" href="#" ng-click="getPictures(topic)">{{topic}}</a>
+      </div>  
+    </ul>  
+    <div ng-repeat="pic in pictures">
+      <h3>{{pic.title}}</h3>
+      <img src="{{pic.src}}" />
+      <br>
+      <div>
+      <button class="btn btn-success" ng-hide="pic.selected" ng-click="selectPicture(pic.src,$index)">Select</button>
+      <button class="btn btn-warning" ng-show="pic.selected" ng-click="deSelectPicture(pic.src,$index)">De-Select</button>
+      </div>
+      <br>
+    </div>
+  </body>
+</html>

@@ -10,6 +10,7 @@
 		<module>crawl</module>
 		<module>common</module>
 		<module>filter</module>
+		<module>enrich</module>
 	</modules>
 	<dependencies>
 		<dependency>

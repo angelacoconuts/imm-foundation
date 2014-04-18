@@ -43,6 +43,8 @@ public class RunConfig {
 	public static String POSTGRES_PSW = "";	
 	
 	public static String[] entities = {};
+	
+	public static String FLICKR_SERVICE_ENDPOINT = "";
 
 	// static String[] ADJ_ADV_TAG_LIST = { "JJ", "JJR", "JJS", "RB", "RBR",
 	// "RBS" };
@@ -91,6 +93,7 @@ public class RunConfig {
 		RunConfig.POSTGRES_PSW = json.getString("postgres_psw");
 		
 		RunConfig.entities = StringUtil.split(json.getString("entities"),',');
+		RunConfig.FLICKR_SERVICE_ENDPOINT = json.getString("flickr_service_endpoint");
 
 	}
 
