@@ -19,7 +19,7 @@ public class SentenceRanker {
 	private Map<String, Double> adjectiveScoreMap = new HashMap<String, Double>();
 	private Map<String, Double> sentenceEntityScoreMap = new HashMap<String, Double>();
 	private Map<String, Double> sentenceAdjectiveScoreMap = new HashMap<String, Double>();
-	private Set<String> sentenceSet = new HashSet<String>();
+	private Map<String, String> sentenceSet = new HashMap<String, String>();
 	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
 	DBBulkInserter dbInsert = new DBBulkInserter();
 	
@@ -28,7 +28,7 @@ public class SentenceRanker {
 		fillEntityScoreMap(topic);
 		fillAdjectiveScoreMap(topic);
 		
-		String queryStr = "select re.key, re.value, re.sent_id from entity_mentions e, sentences s, sentence_features re "
+		String queryStr = "select re.key, re.value, re.sent_id, re.site_id from entity_mentions e, sentences s, sentence_features re "
 				+ "where e.uri = " + "'" + dbpediaURIPrefix + topic + "'"
 				+ " and e.mention_sent = s.sent_id"
 				+ " and s.sent_id = re.sent_id"
@@ -43,8 +43,9 @@ public class SentenceRanker {
 				String type = (String) result.getObject("key");
 				String feature = (String) result.getObject("value");
 				String sentence = (String) result.getObject("sent_id");
+				String site = (String) result.getObject("site_id");
 				
-				sentenceSet.add(sentence);
+				sentenceSet.put(sentence, site);
 				
 				if(type.equals("E") && entityScoreMap.containsKey(feature)){
 					
@@ -86,9 +87,9 @@ public class SentenceRanker {
 			db.closeResultSet(result);
 		}
 		
-		logger.info("Total Sentence #: " + sentenceSet.size());
+		logger.info("Total Sentence #: " + sentenceSet.keySet().size());
 		
-		for (String sentence : sentenceSet){
+		for (String sentence : sentenceSet.keySet()){
 			
 			double entityScore = 0, adjScore = 0;
 			if(sentenceEntityScoreMap.containsKey(sentence))
@@ -96,10 +97,11 @@ public class SentenceRanker {
 			if(sentenceAdjectiveScoreMap.containsKey(sentence))
 				adjScore = sentenceAdjectiveScoreMap.get(sentence);
 			
-			String updateStr = "INSERT INTO IMPORTANT_SENTENCES ( TOPIC, SENT_ID, ENTITY_SCORE, ADJECTIVE_SCORE) "
+			String updateStr = "INSERT INTO IMPORTANT_SENTENCES ( TOPIC, SENT_ID, SITE_ID, ENTITY_SCORE, ADJECTIVE_SCORE) "
 					+ "VALUES ("
 					+ "'" + topic + "'" + ","
 					+ "'" + sentence + "'" + ","
+					+ "'" + sentenceSet.get(sentence) + "'" + ","
 					+ entityScore + ","
 					+ adjScore
 					+ ") ;";
