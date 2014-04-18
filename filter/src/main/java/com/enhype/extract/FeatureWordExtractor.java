@@ -131,9 +131,9 @@ public class FeatureWordExtractor {
 		Map<FeatureSiteTuple, Long> featureWordOccurenceMap = new HashMap<FeatureSiteTuple, Long>();
 		
 		logger.info("== getFeatureAdjNounOccurenceGroupbySite ==");
-		String queryStr = "select sf.adjective, sf.site_id, count(*) from entity_mentions e, sentence_adjectives sf "
-				+ "where e.uri = " + "'" + queryEntityURI + "'"
-				+ "and e.mention_sent = sf.sent_id "
+		String queryStr = "select sf.adjective, sf.site_id, count(*) from sentence_features e, sentence_adjectives sf "
+				+ "where e.value = " + "'" + queryEntityURI + "'"
+				+ "and e.sent_id = sf.sent_id "
 				+ "group by sf.adjective, sf.site_id; ";	
 		
 		long timer = System.currentTimeMillis();
