@@ -32,6 +32,10 @@ public class Extractor {
 		
 		FeatureWordExtractor extractor = new FeatureWordExtractor();
 		
+		extractor.fillSiteSentNumMap();
+		extractor.fillAdjectiveOccurenceMap();
+		
+		//extractor.getImportantFeatureWords("Xinjiang");
 		for (String topic : RunConfig.entities)
 			extractor.getImportantFeatureWords(topic);
 		

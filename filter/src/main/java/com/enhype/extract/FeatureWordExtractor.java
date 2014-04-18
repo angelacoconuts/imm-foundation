@@ -22,10 +22,7 @@ public class FeatureWordExtractor {
 	private String query = "";
 	
 	public void getImportantFeatureWords (String topic) {
-		
-		fillSiteSentNumMap();
-		fillAdjectiveOccurenceMap();
-				
+					
 		Map<FeatureSiteTuple, Long> featureWordOccurence = getFeatureWordOccurenceGroupbySite(dbpediaURIPrefix + topic, 1);	
 		
 		Map<String, Double> featureWordProminenceScore = logScaleOffsetBySentNumInSite(featureWordOccurence);
@@ -68,7 +65,7 @@ public class FeatureWordExtractor {
 		
 	}
 	
-	private void fillSiteSentNumMap() {
+	public void fillSiteSentNumMap() {
 		
 		String queryStr = "select s.site_id, s.sent_num from sites s;";	
 		
@@ -96,7 +93,7 @@ public class FeatureWordExtractor {
 		
 	}
 	
-	private void fillAdjectiveOccurenceMap() {
+	public void fillAdjectiveOccurenceMap() {
 		
 		String queryStr = "select adjective, site_id, count from adjective_occurence;";	
 		
@@ -134,11 +131,10 @@ public class FeatureWordExtractor {
 		Map<FeatureSiteTuple, Long> featureWordOccurenceMap = new HashMap<FeatureSiteTuple, Long>();
 		
 		logger.info("== getFeatureAdjNounOccurenceGroupbySite ==");
-		String queryStr = "select sf.value, sf.site_id, count(*) from entity_mentions e, sentence_features sf "
+		String queryStr = "select sf.adjective, sf.site_id, count(*) from entity_mentions e, sentence_adjectives sf "
 				+ "where e.uri = " + "'" + queryEntityURI + "'"
 				+ "and e.mention_sent = sf.sent_id "
-				+ "and sf.key = 'A' "
-				+ "group by sf.value, sf.site_id; ";	
+				+ "group by sf.adjective, sf.site_id; ";	
 		
 		long timer = System.currentTimeMillis();
 		java.sql.ResultSet result = db.execSelect(queryStr);
@@ -150,7 +146,7 @@ public class FeatureWordExtractor {
 				
 				long occurence = (Long) result.getObject("count");
 				if( occurence >= minOccurrenceThreshold){
-					FeatureSiteTuple tuple = new FeatureSiteTuple((String) result.getObject("value"), (String) result.getObject("site_id") );
+					FeatureSiteTuple tuple = new FeatureSiteTuple((String) result.getObject("adjective"), (String) result.getObject("site_id") );
 					featureWordOccurenceMap.put( tuple , occurence );
 				}
 
