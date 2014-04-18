@@ -28,6 +28,12 @@ public class SentenceRanker {
 		fillEntityScoreMap(topic);
 		fillAdjectiveScoreMap(topic);
 		
+		sentenceSet.clear();
+		sentenceEntityScoreMap.clear();
+		sentenceAdjectiveScoreMap.clear();
+		entityScoreMap.clear();
+		adjectiveScoreMap.clear();
+		
 		String queryStr = "select re.key, re.value, re.sent_id, re.site_id from sentence_features e, sentence_features re "
 				+ "where e.value = " + "'" + dbpediaURIPrefix + topic + "'"
 				+ " and e.sent_id = re.sent_id"
