@@ -15,7 +15,8 @@ public class Extractor {
 		
 		RunConfig.parseCfgFromFile("src/main/resources/config.json");
 		
-		entractImportantWords();
+	//	entractImportantWords();
+		rankSentences();
 		
 	}
 	
@@ -45,6 +46,7 @@ public class Extractor {
 		
 		SentenceRanker ranker = new SentenceRanker();
 		
+		//ranker.rankSentenceEntity("Mongkok");
 		for (String topic : RunConfig.entities)
 			ranker.rankSentenceEntity(topic);
 		
