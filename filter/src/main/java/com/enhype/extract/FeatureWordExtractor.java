@@ -17,9 +17,12 @@ public class FeatureWordExtractor {
 	private Map<FeatureSiteTuple, Long> adjectiveOccurenceMap = new HashMap<FeatureSiteTuple, Long>();
 	private PostgresDB db = new PostgresDB();
 	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
+	/*
 	private int maximumRequestSize = 100;
 	private int currentRequestSize = 0;
 	private String query = "";
+	*/
+	DBBulkInserter dbInsert = new DBBulkInserter();
 	
 	public void getImportantFeatureWords (String topic) {
 					
@@ -40,12 +43,14 @@ public class FeatureWordExtractor {
 			
 			logger.info(updateStr);
 			
-			query = addToQueryListOrExecute (query , updateStr);
+		//	query = addToQueryListOrExecute (query , updateStr);
 		//	db.execUpdate(updateStr);
+			dbInsert.addToQueryListOrExecute(updateStr);
 		}
 		
 	}
 	
+	/*
 	private String addToQueryListOrExecute (String existingQuery , String newRequest) {
 		
 		String newQuery = existingQuery + " " + newRequest;
@@ -64,6 +69,7 @@ public class FeatureWordExtractor {
 		}
 		
 	}
+	*/
 	
 	public void fillSiteSentNumMap() {
 		

@@ -21,6 +21,7 @@ public class SentenceRanker {
 	private Map<String, Double> sentenceAdjectiveScoreMap = new HashMap<String, Double>();
 	private Set<String> sentenceSet = new HashSet<String>();
 	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
+	DBBulkInserter dbInsert = new DBBulkInserter();
 	
 	public void rankSentenceEntity(String topic){
 		
@@ -52,7 +53,7 @@ public class SentenceRanker {
 					if(score <= 0)
 						continue;
 					
-					logger.info("Found entity " + feature + "; Score: " + score );
+					logger.debug("Found entity " + feature + "; Score: " + score );
 					
 					if(sentenceEntityScoreMap.containsKey(sentence))
 						sentenceEntityScoreMap.put(sentence, sentenceEntityScoreMap.get(sentence) + score);
@@ -68,7 +69,7 @@ public class SentenceRanker {
 					if(score <= 0)
 						continue;
 					
-					logger.info("Found adjective " + feature + "; Score: " + score );
+					logger.debug("Found adjective " + feature + "; Score: " + score );
 					
 					if(sentenceAdjectiveScoreMap.containsKey(sentence))
 						sentenceAdjectiveScoreMap.put(sentence, sentenceAdjectiveScoreMap.get(sentence) + score);
@@ -103,7 +104,8 @@ public class SentenceRanker {
 					+ adjScore
 					+ ") ;";
 			
-			db.execUpdate(updateStr);
+			dbInsert.addToQueryListOrExecute(updateStr);
+		//	db.execUpdate(updateStr);
 		}
 		
 	}
