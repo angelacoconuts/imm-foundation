@@ -34,9 +34,9 @@ public class SentenceRanker {
 		entityScoreMap.clear();
 		adjectiveScoreMap.clear();
 		
-		String queryStr = "select re.key, re.value, re.sent_id, re.site_id from sentence_features e, sentence_features re "
-				+ "where e.value = " + "'" + dbpediaURIPrefix + topic + "'"
-				+ " and e.sent_id = re.sent_id"
+		String queryStr = "select re.key, re.value, re.sent_id, re.site_id from entity_mentions e, sentence_features re "
+				+ "where e.uri = " + "'" + dbpediaURIPrefix + topic + "'"
+				+ " and e.mention_sent = re.sent_id"
 				+ " and re.key in ('E','A');";	
 		
 		java.sql.ResultSet result = db.execSelect(queryStr, 100);
