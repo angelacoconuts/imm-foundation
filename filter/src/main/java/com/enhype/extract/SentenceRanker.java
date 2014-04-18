@@ -23,16 +23,19 @@ public class SentenceRanker {
 	private String dbpediaURIPrefix = "http://dbpedia.org/resource/";
 	DBBulkInserter dbInsert = new DBBulkInserter();
 	
+	public SentenceRanker(){
+		fillEntityScoreMap("Hong_Kong");
+	}
+	
 	public void rankSentenceEntity(String topic){
-		
-		fillEntityScoreMap(topic);
-		fillAdjectiveScoreMap(topic);
 		
 		sentenceSet.clear();
 		sentenceEntityScoreMap.clear();
 		sentenceAdjectiveScoreMap.clear();
-		entityScoreMap.clear();
+	//	entityScoreMap.clear();
 		adjectiveScoreMap.clear();
+		
+		fillAdjectiveScoreMap(topic);
 		
 		String queryStr = "select re.key, re.value, re.sent_id, re.site_id from entity_mentions e, sentence_features re "
 				+ "where e.uri = " + "'" + dbpediaURIPrefix + topic + "'"
