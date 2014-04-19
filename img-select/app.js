@@ -5,7 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
-var postgres = require('postgres.js');
+var postgres = require('./postgres.js');
 var http = require('http');
 var path = require('path');
 
