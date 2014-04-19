@@ -2,6 +2,10 @@
  * GET home page.
  */
 
-exports.index = function(req, res){
-  res.render('index', { title: 'Image selector' });
+exports.images = function(req, res){
+  res.render('images', { title: 'Image selector' });
+};
+
+exports.quotes = function(req, res){
+  res.render('quotes', { title: 'Quote selector' });
 };

@@ -1,0 +1,26 @@
+#navbar-menu > li {
+    letter-spacing: 0.0625em;
+}
+
+#navbar-menu > li.selected {
+    border-bottom: 2px solid #ff5a14;
+}
+
+#navbar-menu > li.selected > a {
+    color: #ff5a14;
+}
+
+#navbar-menu {
+    margin-right: 1%;
+}
+
+#brand {
+    margin-top: 0px;
+    font-weight: bold;
+    letter-spacing: 0.03em;
+}
+
+#brand span {
+    color: #ff5a14;
+}
+

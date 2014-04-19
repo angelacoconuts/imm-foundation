@@ -1,0 +1,35 @@
+<script src="/javascripts/vendor/angular/angular.js"></script>
+<script src="/javascripts/searchController.js"></script>
+<body ng-app="enhypeApp" ng-controller="bareBoneController" ng-init="onLoad()">
+  <div class="col-sm-12 pull-left"><h3 id="topic">{{topic}}</h3></div>
+  <div class="inline-block">
+    <div class="col-sm-10 inline-block">
+      <div class="row">
+	<div id="quote-block" ng-repeat="quote in quotes" class="col-sm-6">
+	  <p id="quote">{{quote.text}}</p>
+	  <p id="site" class="pull-right">{{quote.site}}</p>
+	</div>
+      </div>
+    </div>
+    <div class="col-sm-2 inline-block" id="category">
+      <div class="col-sm-4"></div>
+      <ul class="col-sm-8 list-unstyled">
+	<li ng-repeat="feature in features"><a>{{feature.word}} ({{feature.count}})</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="inline-block">
+    <div class="col-sm-4" ng-repeat="image in images">
+      <h4>{{image.title}}</h4>
+      <img id="image" src="{{image.src}}"></img>
+      <div id="image-block">
+	<span id="img-quote">{{image.text}}...</span>
+	<span id="img-site">{{image.site}}</span>
+      </div>
+    </div>
+  </div>
+  <script src="/javascripts/vendor/jquery/dist/jquery.min.js"></script>
+  <script src="/javascripts/vendor/bootstrap.min.js"></script>
+</body>
+

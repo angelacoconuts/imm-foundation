@@ -1,59 +1,37 @@
-var pg = require('pg');
 var url = require('url');
-var conString = "postgres://enhype:enhypefun@enhype.cojtnovxyoln.us-west-2.rds.amazonaws.com:5432/enhype";
-var client = new pg.Client(conString);
+var postgres = require("./postgresService.js");
 
-exports.getPictures = function (req, res){
+exports.getImages = function (req, res){
     
     var urlQuery = url.parse(req.url, true).query;
-    var resPictures = [];
+    var resImages = [];
     var queryStr = "select * from pictures where query = " + "'" + urlQuery.topic + "';";
 
-    queryPostgres(queryStr, function(result){
+    postgres.query(queryStr, function(result){
 
 	var rows = result.rows;
 	for(var i=0; i< rows.length; i++){
-	    var picture = {};
-	    picture.src = rows[i].img_src;
-	    picture.title = rows[i].img_title;
-	    picture.selected = rows[i].selected;
-	    resPictures.push(picture);
+	    var image = {};
+	    image.src = rows[i].img_src;
+	    image.title = rows[i].img_title;
+	    image.selected = rows[i].selected;
+	    resImages.push(image);
 	}
 
 	res.writeHead( 200 );
-	res.write( JSON.stringify( { "pictures":resPictures } ) );
+	res.write( JSON.stringify( { "images":resImages } ) );
 	res.end();
 
     });
 
 }
 
-function queryPostgres(queryStr, successCallback) {
-
-    pg.connect(conString, function(err, client, done) {
-
-	if(err) {
-	    return console.error('error fetching client from pool', err);
-	}
-	client.query(queryStr, function(err, result) {
-	    done();
-	    if(err) {
-		return console.error('error running query', err);
-	    }
-	    successCallback(result);
-
-	});
-    });
-
-}
-
-
-exports.selectPicture = function (req, res){
+exports.selectImage = function (req, res){
     
     var urlQuery = url.parse(req.url, true).query;
     var queryStr = "update pictures set selected=true where img_src = " + "'" + urlQuery.src + "';";
 
-    queryPostgres(queryStr,function(result){
+    postgres.query(queryStr,function(result){
 
 
 	res.writeHead( 200 );
@@ -62,12 +40,12 @@ exports.selectPicture = function (req, res){
     });
 }
 
-exports.deSelectPicture = function (req, res){
+exports.deSelectImage = function (req, res){
     
     var urlQuery = url.parse(req.url, true).query;
     var queryStr = "update pictures set selected=false where img_src = " + "'" + urlQuery.src + "';";
 
-    queryPostgres(queryStr,function(result){
+    postgres.query(queryStr,function(result){
 
 	res.writeHead( 200 );
 	res.write( JSON.stringify( { "success":1 } ) );
@@ -82,7 +60,7 @@ exports.getTopics = function (req, res){
     var resTopics = [];
     var queryStr = "select distinct query from pictures;";
 
-    queryPostgres(queryStr, function (result){
+    postgres.query(queryStr, function (result){
 
 	var rows = result.rows;
 	for(var i=0; i< rows.length; i++){

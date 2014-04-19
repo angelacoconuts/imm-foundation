@@ -5,8 +5,7 @@
 
 var express = require('express');
 var routes = require('./routes');
-var imgService = require('./imagesService.js');
-var quoteService = require('./quotesService.js');
+var db = require('./queryDB.js');
 var http = require('http');
 var path = require('path');
 
@@ -29,18 +28,10 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-app.get('/', routes.images);
-app.get('/images', routes.images);
-app.get('/getimages', imgService.getImages);
-app.get('/getimagestopics', imgService.getTopics);
-app.get('/selectimage', imgService.selectImage);
-app.get('/deselectimage', imgService.deSelectImage);
-
-app.get('/quotes', routes.quotes);
-app.get('/getquotes', quoteService.getQuotes);
-app.get('/getquotestopics', quoteService.getTopics);
-app.get('/selectquote', quoteService.selectQuote);
-app.get('/deselectquote', quoteService.deSelectQuote);
+app.get('/', routes.index);
+app.get('/getimages', db.getImages);
+app.get('/getquotes', db.getQuotes);
+app.get('/getfeatures', db.getFeatures);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

@@ -16,19 +16,19 @@
     </style>  
   </head>
   
-  <body ng-app="imageSelApp" ng-controller="imgController" ng-init="getTopics()">
+  <body ng-app="selApp" ng-controller="imgController" ng-init="getTopics()">
     <div id="topics" class="list-group">
       <div ng-repeat="topic in topics">
-	<a class="list-group-item" href="#" ng-click="getPictures(topic)">{{topic}}</a>
+	<a class="list-group-item" href="#" ng-click="getImages(topic)">{{topic}}</a>
       </div>  
-    </ul>  
-    <div ng-repeat="pic in pictures">
+    </div>  
+    <div ng-repeat="pic in images">
       <h3>{{pic.title}}</h3>
       <img src="{{pic.src}}" />
       <br>
       <div>
-      <button class="btn btn-success" ng-hide="pic.selected" ng-click="selectPicture(pic.src,$index)">Select</button>
-      <button class="btn btn-warning" ng-show="pic.selected" ng-click="deSelectPicture(pic.src,$index)">De-Select</button>
+      <button class="btn btn-success" ng-hide="pic.selected" ng-click="selectImage(pic.src,$index)">Select</button>
+      <button class="btn btn-warning" ng-show="pic.selected" ng-click="deSelectImage(pic.src,$index)">De-Select</button>
       </div>
       <br>
     </div>

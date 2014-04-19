@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quote Selector</title>
+    <link rel="stylesheet" href="javascripts/vendor/bootstrap/dist/css/bootstrap.css">
+    <script src="javascripts/vendor/angular/angular.js"></script>
+    <script src="javascripts/controller.js"></script>
+    <style>
+      body {
+      margin-top: 20px;
+      margin-left: 40px;
+      }
+      #topics {
+      width: 300px;
+      }
+      #quote {
+      width: 600px;
+      }
+      #site {
+      color: #B0171F;
+      font-style: italic;
+      }
+    </style>  
+  </head>
+  
+  <body ng-app="selApp" ng-controller="quoteController" ng-init="getTopics()">
+    <div id="topics" class="list-group">
+      <div ng-repeat="topic in topics">
+	<a class="list-group-item" href="#" ng-click="getQuotes(topic)">{{topic}}</a>
+      </div>  
+    </div>
+    <div ng-repeat="quote in quotes">
+      <h5 id="quote">{{quote.text}}</h5>
+      <h5 id="site">{{quote.site}}</h5>
+      <br>
+      <div>
+	<button class="btn btn-success" ng-hide="quote.selected" ng-click="selectQuote(quote.id,$index)">Select</button>
+	<button class="btn btn-warning" ng-show="quote.selected" ng-click="deSelectQuote(quote.id,$index)">De-Select</button>
+      </div>
+      <br>
+    </div>
+  </body>
+</html>
