@@ -1,6 +1,12 @@
 body {
     padding:39px 4% 0px;
 }
+a {
+    cursor:pointer;
+}
+a:hover,a:active,a:focus {
+    text-decoration:none;
+}
 .inline-block {
     display: inline-block;
 }
@@ -8,16 +14,17 @@ body {
     font-weight: bold;
     margin-top: 10px;
     letter-spacing: -0.03em;
+    color: #666;
 }
 #category {
     border-top: 2px solid #888;
     padding: 0.5em 0 0;
 }
 
-#category > ul {
+#category ul {
     padding: 0;
 }
-#category > * > li {
+#category li {
     float:right;
     cursor:pointer;
 }
@@ -34,29 +41,31 @@ body {
     font-family:Georgia, "Times New Roman", Times, serif;
     font-style:italic;
 }
-#site {
+.site {
+    font-size: 0.9em;
     color: #ff5a14;
-    font-family:Georgia, "Times New Roman", Times, serif;
 }
 
+.image-author {
+    font-size:0.8em;
+    position:absolute;
+    right:1.5em;
+    top:2em;
+    font-style:italic;
+}
 #image {
     width: 100%;
     height: auto;
     max-height: 13em;
     margin-bottom: 0.5em;
 }
-#image-block {
+.image-quote-block {
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 0.5em 0.8em;
 }
-#img-quote {
+.img-quote {
     font-family:Georgia, "Times New Roman", Times, serif;
     margin-bottom: 0;
-}
-#img-site {
-    font-family:Georgia, "Times New Roman", Times, serif;
-    font-style:italic;
-    color:#ff5a14;
 }
