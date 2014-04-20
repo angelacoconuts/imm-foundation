@@ -22,7 +22,7 @@
 
 # Logs and databases #
 ######################
-*.log
+*.log*
 *.sqlite
 
 # OS generated files #
