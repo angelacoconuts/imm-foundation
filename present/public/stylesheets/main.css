@@ -26,7 +26,6 @@ a:hover,a:active,a:focus {
 }
 #category li {
     float:right;
-    cursor:pointer;
 }
 #category a:hover,a:active,a:focus {
     text-decoration:none;
@@ -45,7 +44,12 @@ a:hover,a:active,a:focus {
     font-size: 0.9em;
     color: #ff5a14;
 }
-
+.site:hover, .site:active, .site:focus {
+    transform:scale(1.1);
+    -ms-transform:scale(1.1); /* IE 9 */
+    -moz-transform:scale(1.1); /* Firefox */
+    -webkit-transform:scale(1.1);
+}
 .image-author {
     font-size:0.8em;
     position:absolute;
