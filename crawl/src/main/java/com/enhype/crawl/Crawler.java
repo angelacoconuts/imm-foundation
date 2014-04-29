@@ -45,14 +45,14 @@ public class Crawler {
 		
 		dbWriter = new PostgresDBWriter();
 		
-		if(args.length > 1 && args[1] == "createtable"){
+		if(args.length > 1 && args[1].equals("createtable")){
 
 			dbWriter.createEntityTable();
 			dbWriter.createPageTable();
 			dbWriter.createSiteTable();
 			dbWriter.createSentenceTable();
 			
-		}else if (args.length > 1 && args[1] == "reloadtable") {
+		}else if (args.length > 1 && args[1].equals("reloadtable")) {
 			
 			dbWriter.dropAllTables();
 			dbWriter.createEntityTable();

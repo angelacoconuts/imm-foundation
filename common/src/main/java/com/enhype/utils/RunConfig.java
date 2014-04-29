@@ -74,7 +74,10 @@ public class RunConfig {
 		RunConfig.NUM_CRAWLERS = json.getInt("crawler_number");
 		RunConfig.NUM_PAGES_TO_FETCH = json.getInt("max_pages_to_fetch");
 		RunConfig.CRAWL_DEPTH = json.getInt("max_crawl_depth");
-		RunConfig.seedPages = StringUtil.split(json.getString("seedPages"),',');
+		
+		if(json.has("seedPages"))
+			RunConfig.seedPages = StringUtil.split(json.getString("seedPages"),',');
+		
 		RunConfig.AWSCredentialDir = json.getString("aws_credential_dir");
 		RunConfig.MACHINE_ID = json.getString("machine_id");
 		RunConfig.PAGE_SEQ = json.getLong("page_seq");
@@ -92,8 +95,10 @@ public class RunConfig {
 		RunConfig.POSTGRES_USER = json.getString("postgres_user");
 		RunConfig.POSTGRES_PSW = json.getString("postgres_psw");
 		
-		RunConfig.entities = StringUtil.split(json.getString("entities"),',');
-		RunConfig.FLICKR_SERVICE_ENDPOINT = json.getString("flickr_service_endpoint");
+		if(json.has("entities"))
+			RunConfig.entities = StringUtil.split(json.getString("entities"),',');
+		if(json.has("flickr_service_endpoint"))
+			RunConfig.FLICKR_SERVICE_ENDPOINT = json.getString("flickr_service_endpoint");
 
 	}
 

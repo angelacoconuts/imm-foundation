@@ -3,7 +3,7 @@
 	"crawler_number" : 1,
 	"max_pages_to_fetch" : 1,
 	"max_crawl_depth" : 3,
-	"seedPages" : "http://www.wearetraveller.com/",
+	"seedPages" : "http://www.etravelreviews.com/hongkong/",
 	"entity_linking_service_endpoint" : "http://localhost:2222/rest",
 	"aws_credential_dir" : "/home/angelacoconuts/.ssh/AwsCredentials.properties",
 	"entity_linking_confidence_level" : "0.6",

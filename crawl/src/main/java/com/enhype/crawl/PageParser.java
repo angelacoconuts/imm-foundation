@@ -30,6 +30,7 @@ public class PageParser {
 	private NLPUtils nlpTlk = new NLPUtils(); 
 	private WebPage page = new WebPage();
 	private String text = "";
+	private int PRUNE_LONG_SENT_THRESHODE = 1000;
 
 	public void parseURL(File file){
 		
@@ -78,8 +79,9 @@ public class PageParser {
 		
 		String rawText = "";
 		String[] sentences = null;
-		int sentencePosPointer = 0;
-		int[] sentencePositions;
+		Set<String> sentenceRemoveDup = null;
+		
+		List<Integer> sentencePositions = new ArrayList<Integer>();
 		Map<Integer, String> sentencePositionMap = new LinkedHashMap<Integer, String>();
 		Map<Integer, Set<String>> sentenceAdjMap = new HashMap<Integer, Set<String>>();
 		Map<Integer, Set<String>> sentenceNounMap = new HashMap<Integer, Set<String>>();
@@ -91,8 +93,10 @@ public class PageParser {
 		long jsoupTime = System.currentTimeMillis() - timer;
 		logger.debug( "Jsoup parse time: " + ( jsoupTime ) + " ms");
 		
-		rawText = doc.select(CONTENT_TAGS).text();			
+		rawText = doc.select(CONTENT_TAGS).text();
+		
 		sentences = nlpTlk.splitSentences(rawText);
+		sentenceRemoveDup = new HashSet<String>(Arrays.asList(sentences));
 		
 		logger.debug( "Split sentence time: " + ( System.currentTimeMillis() - timer - jsoupTime ) + " ms");
 		
@@ -104,11 +108,9 @@ public class PageParser {
 		page.setFetchTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 				.format(new Timestamp((new java.util.Date()).getTime())));
 		page.setTitle(doc.select("title").text());
-		page.setKeywords(doc.select("meta[name=keywords]").attr("content"));
-		
-		sentencePositions = new int[sentences.length + 1];				
+		page.setKeywords(doc.select("meta[name=keywords]").attr("content"));	
 			
-		parseAdjAdvs(sentences, sentencePosPointer, sentencePositions, sentenceAdjMap, sentenceNounMap, sentencePositionMap);
+		parseAdjAdvs(sentenceRemoveDup, sentencePositions, sentenceAdjMap, sentenceNounMap, sentencePositionMap);
 		
 		parseEntities(sentencePositions, sentenceEntityMap, entityMentionMap);
 		
@@ -127,24 +129,28 @@ public class PageParser {
 
 	}
 	
-	private void parseAdjAdvs(String[] sentences, int sentencePosPointer, int[] sentencePositions, Map<Integer, Set<String>> sentenceAdjMap, Map<Integer, Set<String>> sentenceNounMap, Map<Integer, String> sentencePositionMap){
+	private void parseAdjAdvs(Set<String> sentences, List<Integer> sentencePositions, Map<Integer, Set<String>> sentenceAdjMap, Map<Integer, Set<String>> sentenceNounMap, Map<Integer, String> sentencePositionMap){
 		
 		long timer = System.currentTimeMillis();
+		int sentencePosPointer = 0;
 		
 		//Mark the start of every sentence, title starts at position 0
-		sentencePositions[0] = sentencePosPointer;		
+		sentencePositions.add(sentencePosPointer);		
 		text += page.getTitle() + " " + page.getKeywords();
 		sentencePositionMap.put(sentencePosPointer, text);
 		sentencePosPointer += text.length();
 		
-		for (int i = 0 ; i < sentences.length ; i++){
-
-			sentencePositionMap.put(sentencePosPointer, sentences[i]);
+		for (String sentence : sentences){
+			
+			if(sentence.length() > PRUNE_LONG_SENT_THRESHODE)
+				continue;
+			
+			sentencePositionMap.put(sentencePosPointer, sentence);
 			
 			Set<String> adjList = new HashSet<String>();
 			Set<String> nounList = new HashSet<String>();
 			
-			nlpTlk.getAdjNounList(sentences[i], adjList, nounList);	
+			nlpTlk.getAdjNounList(sentence, adjList, nounList);	
 			
 			if (adjList.size() > 0){
 				sentenceAdjMap.put(sentencePosPointer, adjList);
@@ -153,9 +159,9 @@ public class PageParser {
 				sentenceNounMap.put(sentencePosPointer, nounList);
 			}
 			
-			sentencePositions[i + 1] = sentencePosPointer;
-			text += sentences[i] + " ";			
-			sentencePosPointer += sentences[i].length() + 1;
+			sentencePositions.add(sentencePosPointer);
+			text += sentence + " ";			
+			sentencePosPointer += sentence.length() + 1;
 							
 		}
 		
@@ -163,12 +169,13 @@ public class PageParser {
 		
 	}
 	
-	private void parseEntities(int[] sentencePositions, Map<Integer, Set<String>> sentenceEntityMap, Map<String, Set<String>> entityMentionMap){
+	private void parseEntities(List<Integer> sentencePositions, Map<Integer, Set<String>> sentenceEntityMap, Map<String, Set<String>> entityMentionMap){
 		
 		long timer = System.currentTimeMillis();
 		Map<Integer, String> entityPositionMap = new HashMap<Integer, String>();
 		String[] chunks = text.split("(?<=\\G.{"+RunConfig.URL_LEN_LIMIT+"})");
 		Set<String> sentenceIds = new HashSet<String>();
+		int[] positions = new int[sentencePositions.size()];
 				
 		for ( int i = 0 ; i < chunks.length ; i++ ){
 			
@@ -178,11 +185,14 @@ public class PageParser {
 			entityPositionMap.putAll( nlpTlk.getEntityList(chunks[i], i) );
 		}
 		
+		for ( int i = 0 ; i < sentencePositions.size() ; i++ )
+			positions[i] = sentencePositions.get(i);
+
 		for ( int pos : entityPositionMap.keySet() ){
 
-			int sentSeq = Arrays.binarySearch(sentencePositions, pos);
+			int sentSeq = Arrays.binarySearch(positions, pos);
 			String entity = entityPositionMap.get(pos);
-			int key = sentencePositions[ sentSeq>=0 ? sentSeq : Math.abs(sentSeq)-2 ];
+			int key = positions[ sentSeq>=0 ? sentSeq : Math.abs(sentSeq)-2 ];
 			
 			if(sentenceEntityMap.containsKey(key))
 				sentenceEntityMap.get(key).add(entity);

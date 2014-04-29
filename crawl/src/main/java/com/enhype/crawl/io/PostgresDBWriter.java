@@ -192,6 +192,10 @@ public class PostgresDBWriter {
 					query = addToQueryListOrExecute (query, genereateSentenceFeatureInsert(sentId, "E", entity));
 			
 		}
+		
+		postgres.execUpdate(query);
+		currentRequestSize = 0;
+		query = "";
 
 	}
 	
@@ -224,6 +228,11 @@ public class PostgresDBWriter {
 			}
 			
 		}
+		
+		
+		postgres.execUpdate(query);
+		currentRequestSize = 0;
+		query = "";
 
 	}
 	
@@ -257,7 +266,7 @@ public class PostgresDBWriter {
 			
 			postgres.execUpdate(newQuery);
 			currentRequestSize = 0;
-			return "";
+			return "";		
 			
 		}
 		
