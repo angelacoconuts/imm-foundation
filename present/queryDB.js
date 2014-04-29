@@ -57,7 +57,7 @@ exports.getQuotes = function (req, res){
 exports.getFeatures = function (req, res){
     
     var resTopics = [];
-    var queryStr = "SELECT iw.feature_word,count(*) FROM IMPORTANT_WORDS iw, word_shortlist ws where iw.feature_word = ws.feature_word group by iw.feature_word ORDER BY count(*) DESC limit 10;";
+    var queryStr = "SELECT iw.feature_word,count(*) FROM IMPORTANT_WORDS iw, word_shortlist ws where iw.feature_word = ws.feature_word group by iw.feature_word ORDER BY count(*) DESC limit 9;";
 
     postgres.query(queryStr, function (result){
 
